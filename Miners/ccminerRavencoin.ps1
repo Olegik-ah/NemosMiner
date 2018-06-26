@@ -1,7 +1,7 @@
 . .\Include.ps1
 
-$Path = ".\Bin\NVIDIA-ccminerAllium\ccminer-x64.exe"
-$Uri = "http://ccminer.org/preview/ccminer-x64-2.2.6-xmr-allium-cuda9.7z"
+$Path = ".\Bin\NVIDIA-ccminerRavencoin\ccminer.exe"
+$Uri = "https://github.com/RavencoinProject/RavencoinMiner/releases/download/v3.1-cu92/Ravencoin.Miner.v3.1.win32.cu92.zip"
 
 $Commands = [PSCustomObject]@{
     #"phi" = " -d $SelGPUCC" #Phi
@@ -35,8 +35,9 @@ $Commands = [PSCustomObject]@{
     #"x11" = "" #X11
     #"veltor" = "" #Veltor
     #"x11evo" = " -d $SelGPUCC" #X11evo
-    #"x17" = " -d $SelGPUCC -N 1" #X17
-    "allium" = " -d $SelGPUCC" #Allium
+    #"x17" = " -i 21.5 -d $SelGPUCC --api-remote" #X17
+    "x16r" = " -d $SelGPUCC" #X16r(testing)
+    #"x16s" = " -d $SelGPUCC" #X16s
 }
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
@@ -45,8 +46,8 @@ $Commands | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | 
     [PSCustomObject]@{
         Type = "NVIDIA"
         Path = $Path
-        Arguments = "-b $($Variables.MinerAPITCPPort) -R 1 -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
-        HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Week}
+        Arguments = "-b $($Variables.MinerAPITCPPort) -R 1 -q --submit-stale --donate 0 -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
+        HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Day}
         API = "Ccminer"
         Port = $Variables.MinerAPITCPPort
         Wrap = $false

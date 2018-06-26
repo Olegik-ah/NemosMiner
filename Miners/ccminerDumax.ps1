@@ -1,16 +1,17 @@
 . .\Include.ps1
 
-$Path = ".\Bin\NVIDIA-ccminercryptonight\ccminer-x64.exe"
-$Uri = "https://github.com/tpruvot/ccminer/releases/download/2.3-tpruvot/ccminer-2.3-cuda9.7z"
+$Path = ".\Bin\NVIDIA-ccminerDumax\ccminer.exe"
+$Uri = "https://github.com/DumaxFr/ccminer/releases/download/dumax-0.9.2/ccminer-dumax-0.9.2-win64.zip"
 
 $Commands = [PSCustomObject]@{
-    #"phi" = " -d $SelGPUCC" #Phi
+    "phi" = " -d $SelGPUCC" #Phi(testing)
+    "phi2" = " -d $SelGPUCC" #Phi2testing)
     #"bitcore" = " -d $SelGPUCC" #Bitcore
     #"jha" = " -d $SelGPUCC" #Jha
     #"blake2s" = " -d $SelGPUCC" #Blake2s
     #"blakecoin" = " -d $SelGPUCC" #Blakecoin
     #"vanilla" = "" #BlakeVanilla
-    "cryptonightV7" = " -d $SelGPUCC" #CryptonightV7 (working API thanks tpruvot tested working on 8 GPU"S)
+    #"cryptonight" = " -i 10.5 -l 8x120 --bfactor=8 -d $SelGPUCC --api-remote" #Cryptonight
     #"decred" = "" #Decred
     #"equihash" = "" #Equihash
     #"ethash" = "" #Ethash
@@ -35,9 +36,9 @@ $Commands = [PSCustomObject]@{
     #"x11" = "" #X11
     #"veltor" = "" #Veltor
     #"x11evo" = " -d $SelGPUCC" #X11evo
-    #"x17" = " -d $SelGPUCC --api-remote" #X17
-    #"x16r" = " -d $SelGPUCC --api-remote --api-allow=0/0" #X16r
-    #"x16s" = " -d $SelGPUCC --api-remote --api-allow=0/0" #X16s
+    "x17" = " -d $SelGPUCC" #X17(testing)
+    "x16r" = " -d $SelGPUCC" #X16r(testing)
+    "x16s" = " -d $SelGPUCC" #X16s(testing)
 }
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
@@ -46,10 +47,10 @@ $Commands | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | 
     [PSCustomObject]@{
         Type = "NVIDIA"
         Path = $Path
-        Arguments = "-b $($Variables.MinerAPITCPPort) -R 1 -q --submit-stale -a monero -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
-        HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Week}
+        Arguments = "-b $($Variables.MinerAPITCPPort) -R 1 -q --submit-stale -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
+        HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Day}
         API = "Ccminer"
-        Port = $Variables.MinerAPITCPPort #4068
+        Port = $Variables.MinerAPITCPPort
         Wrap = $false
         URI = $Uri
         User = $Pools.(Get-Algorithm($_)).User

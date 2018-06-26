@@ -2,15 +2,19 @@
     "ActiveMinerGainPct": 5,
     "Algorithm": [
         "bitcore",
-        "x16s",
+        "lyra2z",
+        "timetravel",
+        "x16s", 
         "C11",
         "cryptonightV7",
+        "cryptonightheavy",
         "equihash",
+        "hmq1725",
         "ethash",
         "groestl",
         "hsr",
         "keccak",
-        "x13",
+        "aeriumx",
         "keccakc",
         "x16s",
         "Lyra2RE2",
@@ -57,5 +61,5 @@
     "UIStyle": "Full",
     "UserName": "nemo",
     "Wallet": "1QGADhdMRpp9Pk5u5zG1TrHKRrdK5R81TE",
-    "WorkerName": "ID=NemosMiner3.1"
+    "WorkerName": "ID=NemosMiner3.2"
 }

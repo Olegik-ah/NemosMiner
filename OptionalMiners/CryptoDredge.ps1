@@ -1,30 +1,30 @@
 . .\Include.ps1
 
-$Path = ".\Bin\NVIDIA-TPruvotphi\ccminer-x64.exe"
-$Uri = "https://github.com/tpruvot/ccminer/releases/download/2.2.6-tpruvot/ccminer-x64-2.2.6-phi2-cuda9.7z"
+$Path = ".\Bin\NVIDIA-CryptoDredge\CryptoDredge.exe"
+$Uri = "https://github.com/technobyl/CryptoDredge/releases/download/v0.4.1/CryptoDredge_0.4.1.zip"
 
 $Commands = [PSCustomObject]@{
     #"polytimos" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Polytimos
-    #"hsr" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Hsr
-    "phi" = " -N 1 -d $SelGPUCC" #Phi (testing)
-    "allium" = " -d $SelGPUCC" #Allium
-    #"bitcore" = " -r 0 -d $SelGPUCC" #Bitcore(spmodbitcore faster)
-    #"jha" = " -r 0 -d $SelGPUCC" #Jha
+    #"hsr" = " -d $SelGPUCC -r 0" #Hsr(Alexis78v1.2 faster)
+    #"phi" = " -d $SelGPUCC" #Phi(testing)
+    #"phi2" = " -d $SelGPUCC" #Phi2 (testing)
+    #"bitcore" = " -d $SelGPUCC" #Bitcore(fastest)
+    #"allium" = " -d $SelGPUCC" #Allium(testing)
     #"blake2s" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Blake2s
-    #"x13" = " -d $SelGPUCC -r 0 -i 20 -N 1" #X13
+    #"blakecoin" = " -d $SelGPUCC" #Blakecoin
     #"vanilla" = "" #BlakeVanilla
     #"cryptonight" = " -i 10 -d $SelGPUCC" #Cryptonight
     #"decred" = "" #Decred
     #"equihash" = "" #Equihash
     #"ethash" = "" #Ethash
     #"groestl" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Groestl
-    #"hmq1725" = " -r 0 -d $SelGPUCC" #hmq1725
+    #"hmq1725" = " -r 0 -d $SelGPUCC" #hmq1725(ccminerx16sv0.5 faster)
     #"keccakc" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Keccakc
     #"lbry" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Lbry
-    #"lyra2v2" = " -N 1 -d $SelGPUCC --api-remote --api-allow=0/0" #Lyra2RE2
+    #"lyra2v2" = " -d $SelGPUCC" #Lyra2RE2(testing)
     #"lyra2z" = "  -r 0 -d $SelGPUCC --submit-stale" #Lyra2z
     #"myr-gr" = "" #MyriadGroestl
-    #"neoscrypt" = " -d $SelGPUCC" #NeoScrypt
+    #"neoscrypt" = " -d $SelGPUCC" #NeoScrypt(testing)
     #"nist5" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Nist5
     #"pascal" = "" #Pascal
     #"qubit" = "" #Qubit
@@ -32,14 +32,16 @@ $Commands = [PSCustomObject]@{
     #"sha256t" = " -r 0 -d $SelGPUCC" #Sha256t
     #"sia" = "" #Sia
     #"sib" = " -d $SelGPUCC --api-remote --api-allow=0/0" #Sib
-    #"skein" = "" #Skein
-    #"skunk" = " -d $SelGPUCC" #Skunk
+    #"skein" = " -d $SelGPUCC -r 0" #Skein(Alexi78v1.2 faster)
+    #"skunk" = " -d $SelGPUCC" #Skunk(fastest)
     #"timetravel" = " -r 0 -d $SelGPUCC" #Timetravel
-    #"tribus" = " -r 0 -d $SelGPUCC" #Tribus
-    #"c11" = " -d $SelGPUCC --api-remote --api-allow=0/0" #C11
+    #"tribus" = " -r 0 -d $SelGPUCC" #Tribus(close but spmodtribusv2 is slighty faster + no dev fee)
+    #"c11" = " -d $SelGPUCC -r 0" #C11(Alexis78v1.2 faster)
     #"veltor" = "" #Veltor
-    #"x11evo" = " -d $SelGPUCC" #X11evo (Alexis78 faster)
-    #"x17" = " -N 1 -d $SelGPUCC" #X17(Enemy1.03 faster)
+    #"x11evo" = " -d $SelGPUCC" #X11evo
+    #"x17" = " -d $SelGPUCC" #X17(fastest)
+    #"x16r" = " -d $SelGPUCC -r 0" #X16r(ccminerx16r faster)
+    #"x16s" = " -d $SelGPUCC" #X16s(fastest)
     #"yescrypt" = "" #Yescrypt
 }
 
@@ -49,8 +51,8 @@ $Commands | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | 
     [PSCustomObject]@{
         Type = "NVIDIA"
         Path = $Path
-        Arguments = "-b $($Variables.MinerAPITCPPort) -R 1 -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
-        HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Week}
+        Arguments = "-a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
+        HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Week * .99} # substract 1% devfee
         API = "Ccminer"
         Port = $Variables.MinerAPITCPPort
         Wrap = $false
