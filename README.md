@@ -3,8 +3,8 @@ Copyright (c) 2018 Nemo		(https://github.com/nemosminer/NemosMiner)
 Copyright (c) 2018 MrPlus	(https://github.com/MrPlusGH/NPlusMiner)
 
  ![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
- # NemosMiner-v3.2
- Updated 2018 June 26
+ # NemosMiner-v3.4
+ Updated 29 / 08 / 2018
  
 *****
 
@@ -19,14 +19,12 @@ NemosMiner Monitors mining pools in real-time in order to find the most profitab
 
 Easy configuration, easy start:
 
-      Run NemosMiner-v3.2.bat
+      Run NemosMiner-v3.4.bat
       1. Config tab
       2. Set your Wallet address and Username
-      3. Select your pool/s and load default Algos button. (Remove any algos you do not want to mine)
-      4. "Save Config"
-      5. Close
-      Run NemosMiner-v3.2.bat
-      6."Start"
+      3. Select your pool 
+      4. Save Config
+      5. Start
       
       note: 2. you only need to change Username if you are using Miningpoolhub
       
@@ -85,7 +83,7 @@ Speical Thankyou To "MrPlus" amazing work with the GUI, PLUS profit calculations
 
         - When using advanced per pool configuration, it is possible to add a penalty factor for a specific pool. This simply adds as a multiplicator on estimations presented by the pool.
         - Example scenario
-          - NiceHash as a 4% fee - Set PricePenaltyFactor to 0.96 (1-0.04)
+          - NiceHash has a 4% fee - Set PricePenaltyFactor to 0.96 (1-0.04)
           - You feel like a pool is exaggerating his estimations by 10% - Set PricePenaltyFactor to 0.9
 
    ahashpoolplus / zergpoolplus / zpoolplus / blazepoolplus / phiphipoolplus / blockmastersplus / hashrefineryplus / starpoolplus
@@ -165,7 +163,8 @@ https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-Requires Nvidia driver 397.44 or newer
+Requires Nvidia driver 398.22 or newer / 398.36 recommended 
+https://us.download.nvidia.com/Windows/398.36/398.36-desktop-win10-64bit-international-whql.exe
 
 Made For & Tested with 8x10603gb 6x1070 6x1070ti 6x1080ti (users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards

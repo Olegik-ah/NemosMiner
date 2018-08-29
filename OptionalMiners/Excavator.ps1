@@ -1,4 +1,4 @@
-. .\Include.ps1
+if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1;RegisterLoaded(".\Include.ps1")}
 
 $Threads = 1
 
@@ -6,19 +6,19 @@ $Path = ".\Bin\Excavator\excavator.exe"
 $Uri = "https://github.com/nicehash/excavator/releases/download/v1.4.4a/excavator_v1.4.4a_NVIDIA_Win64.zip"
 
 $Commands = [PSCustomObject]@{
-    "blake2s" = @() #Blake2s(alexis78 faster)
-    #"decred" = @() #Decred
-    "daggerhashimoto" = @() #Ethash(claymore faster)
-    "equihash" = @() #Equihash(dstm faster)
+    #"blake2s" = @() #Blake2s(alexis78 faster)
+    "keccak" = @() #keccak
+    #"daggerhashimoto" = @() #Ethash(claymore faster)
+    #"equihash" = @() #Equihash(dstm faster)
     #"lbry" = @() #Lbry
-    "lyra2rev2" = @() #Lyra2RE2(excavator2 is faster)
+    #"lyra2rev2" = @() #Lyra2RE2(excavator2 is faster)
     "neoscrypt" = @() #NeoScrypt(fastest)
-    "nist5" = @() #nist5(alexis78 faster)
+    #"nist5" = @() #nist5(alexis78 faster)
     #"pascal" = @() #Pascal
 }
 
 $Name = Get-Item $MyInvocation.MyCommand.Path | Select-Object -ExpandProperty BaseName
-$Port = $Variables.MinerAPITCPPort
+$Port = $Variables.NVIDIAMinerAPITCPPort
 
 $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | ForEach-Object {
     try {
@@ -56,7 +56,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
                 API = "NiceHash"
                 Port = $Port
                 URI = $Uri
-                User = $Pools.(Get-Algorithm($_)).User
+				User = $Pools.(Get-Algorithm($_)).User
                 PrerequisitePath = "$env:SystemRoot\System32\msvcr120.dll"
                 PrerequisiteURI = "http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe"
             }
@@ -95,7 +95,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
                 API = "NiceHash"
                 Port = $Port
                 URI = $Uri
-                User = $Pools.(Get-Algorithm($_)).User
+				User = $Pools.(Get-Algorithm($_)).User
                 PrerequisitePath = "$env:SystemRoot\System32\msvcr120.dll"
                 PrerequisiteURI = "http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe"
             }
