@@ -4,7 +4,9 @@ Copyright (c) 2018 MrPlus	(https://github.com/MrPlusGH/NPlusMiner)
 
  ![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
  # NemosMiner-v3.4
- Updated 29 / 08 / 2018
+ Updated 13 September 2018
+
+![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
  
 *****
 
@@ -128,8 +130,8 @@ Speical Thankyou To "MrPlus" amazing work with the GUI, PLUS profit calculations
 
       24hr - uses last 24hour Actual API too request profit
          -Low switching rate
-      plus - uses advanced calculations to maximize profit
-         -Best switching rate
+      plus - uses advanced calculations to reduce switching
+         -Medium switching rate
       normal - uses current estimate API too request profit
          -High switching rate
 

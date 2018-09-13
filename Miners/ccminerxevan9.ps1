@@ -13,7 +13,7 @@ $Commands = [PSCustomObject]@{
     #"decred" = "" #Decred
     #"equihash" = "" #Equihash
     #"ethash" = "" #Ethash
-    "xevan" = " -N 1 -d $($Config.SelGPUCC) -i 21" #Xevan(fastest)
+    "xevan" = " -N 1 -d $($Config.SelGPUCC) -i 21" #Xevan(fastest on most 10series cards/enemyzealot1.18x32 faster on 1080ti's)
     #"groestl" = "" #Groestl
     #"hmq1725" = " -d $($Config.SelGPUCC)" #hmq1725
     #"keccak" = " -d $($Config.SelGPUCC) -m 2 --api-remote" #Keccak
@@ -47,7 +47,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | 
         Path = $Path
         Arguments = "-b $($Variables.NVIDIAMinerAPITCPPort) -R 1 -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
         HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Week}
-        API = "Ccminer"
+        API = "ccminer"
         Port = $Variables.NVIDIAMinerAPITCPPort
         Wrap = $false
         URI = $Uri

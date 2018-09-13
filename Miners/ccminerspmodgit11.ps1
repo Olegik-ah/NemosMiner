@@ -1,7 +1,7 @@
 if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1;RegisterLoaded(".\Include.ps1")}
 
-$Path = ".\Bin\NVIDIA-RavenSpMod9\ccminer.exe"
-$Uri = "https://github.com/sp-hash/suprminer/releases/download/spmod-git9/spmodgit9.7z"
+$Path = ".\Bin\NVIDIA-ccminerspmodgit11\ccminer.exe"
+$Uri = "https://github.com/sp-hash/suprminer/releases/download/spmod-git11/spmodgit11.7z"
 
 $Commands = [PSCustomObject]@{
     #"phi" = " -d $($Config.SelGPUCC)" #Phi
@@ -35,9 +35,9 @@ $Commands = [PSCustomObject]@{
     "c11" = " -d $($Config.SelGPUCC)" #C11 (trex faster/ fastest open source)
     #"veltor" = "" #Veltor
     #"x11evo" = " -d $($Config.SelGPUCC)" #X11evo
-    #"x17" = " -i 21.5 -d $($Config.SelGPUCC) --api-remote" #X17
-    "x16r" = " -d $($Config.SelGPUCC)" #X16r(trex faster/ fastest open source)
-    "x16s" = " -d $($Config.SelGPUCC)" #X16s (trex faster/ fastest open source)
+    "x17" = " -d $($Config.SelGPUCC)" #X17 (testing)
+    "x16r" = " -d $($Config.SelGPUCC)" #X16r(testing)
+    "x16s" = " -d $($Config.SelGPUCC)" #X16s (testing)
 }
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
@@ -48,7 +48,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | 
         Path = $Path
         Arguments = "-b $($Variables.NVIDIAMinerAPITCPPort) -R 1 -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
         HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Day}
-        API = "Ccminer"
+        API = "ccminer"
         Port = $Variables.NVIDIAMinerAPITCPPort
         Wrap = $false
         URI = $Uri

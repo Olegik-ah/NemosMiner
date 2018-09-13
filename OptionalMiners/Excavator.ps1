@@ -12,7 +12,7 @@ $Commands = [PSCustomObject]@{
     #"equihash" = @() #Equihash(dstm faster)
     #"lbry" = @() #Lbry
     #"lyra2rev2" = @() #Lyra2RE2(excavator2 is faster)
-    "neoscrypt" = @() #NeoScrypt(fastest)
+    "neoscrypt" = @() #NeoScrypt(Cryptodredge faster)
     #"nist5" = @() #nist5(alexis78 faster)
     #"pascal" = @() #Pascal
 }
@@ -53,10 +53,10 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
                 Path = $Path
                 Arguments = "-p $Port -c $($Pools.$(Get-Algorithm $_).Name)_$(Get-Algorithm $_)_$($Pools.$(Get-Algorithm $_).User)_$($Threads)_Nvidia.json -na"
                 HashRates = [PSCustomObject]@{$(Get-Algorithm $_) = $Stats."$($Name)_$(Get-Algorithm $_)_HashRate".Week}
-                API = "NiceHash"
+                API = "excavator"
                 Port = $Port
                 URI = $Uri
-				User = $Pools.(Get-Algorithm($_)).User
+                User = $Pools.(Get-Algorithm($_)).User
                 PrerequisitePath = "$env:SystemRoot\System32\msvcr120.dll"
                 PrerequisiteURI = "http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe"
             }
@@ -95,7 +95,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty 
                 API = "NiceHash"
                 Port = $Port
                 URI = $Uri
-				User = $Pools.(Get-Algorithm($_)).User
+                User = $Pools.(Get-Algorithm($_)).User
                 PrerequisitePath = "$env:SystemRoot\System32\msvcr120.dll"
                 PrerequisiteURI = "http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe"
             }

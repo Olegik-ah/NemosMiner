@@ -34,7 +34,7 @@ $Commands = [PSCustomObject]@{
     #"sia" = "" #Sia
     #"sib" = " -d $($Config.SelGPUCC) --api-remote --api-allow=0/0" #Sib
     #"skein" = "" #Skein
-    #"skunk" = " -d $($Config.SelGPUCC)" #Skunk
+    "skunk" = " -d $($Config.SelGPUCC)" #Skunk
     #"timetravel" = " -r 0 -d $($Config.SelGPUCC)" #Timetravel
     #"tribus" = " -r 0 -d $($Config.SelGPUCC)" #Tribus
     #"c11" = " -d $($Config.SelGPUCC) --api-remote --api-allow=0/0" #C11
@@ -52,7 +52,7 @@ $Commands | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name | 
         Path = $Path
         Arguments = "-b $($Variables.NVIDIAMinerAPITCPPort) -R 1 -a $_ -o stratum+tcp://$($Pools.(Get-Algorithm($_)).Host):$($Pools.(Get-Algorithm($_)).Port) -u $($Pools.(Get-Algorithm($_)).User) -p $($Pools.(Get-Algorithm($_)).Pass)$($Commands.$_)"
         HashRates = [PSCustomObject]@{(Get-Algorithm($_)) = $Stats."$($Name)_$(Get-Algorithm($_))_HashRate".Week}
-        API = "Ccminer"
+        API = "ccminer"
         Port = $Variables.NVIDIAMinerAPITCPPort
         Wrap = $false
         URI = $Uri
