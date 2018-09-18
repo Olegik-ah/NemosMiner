@@ -1,9 +1,12 @@
  ![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
 # NemosMiner  
-Updated 14 September 2018
+Updated 18 September 2018
 [![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
 ![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
-### *by Nemo/Minerx117*
+
+by Nemo/Minerx117
+
+with Help From MrPlusGH and grantemsley 
  
 *****
 
@@ -18,7 +21,7 @@ NemosMiner Monitors mining pools in real-time in order to find the most profitab
 
 Easy configuration, easy start:
 
-      Run NemosMiner-v3.4.1.bat
+      Run NemosMiner.bat
       1. Config tab
       2. Set your Wallet address and Username
       3. Select your pool 
@@ -114,9 +117,14 @@ Speical Thankyou To "MrPlus" amazing work with the GUI, PLUS profit calculations
 
    Optional miners (Advanced)
    
-      Some miners are not enabled by default in NemosMiner for a variety of reasons
-      A new folder can be found called "OptionalMiners" containing .ps1 files for some miners
-      For advanced users, refer to OptionalMiners\Readme.txt on how to use
+      Some miners are not enabled by default in NemosMiner for a variety of reasons:
+          - ccminerenemy / zealot / trex / cryptodredge
+              These are closed source and therefore not enabled in NemosMiner by default.
+              Use at your own risk.
+          - Excavator
+              Note as Excavator is owned by "Nicehash" and has a EULA it is NOT enabled in NemosMiner by default
+
+      For advanced users, check the Optional Miners checkbox on the Config tab to enable these miners.
 
    Algo switching log
    
@@ -165,7 +173,7 @@ running multiple cards its recommended to increase Virtual Memory 64gb is optima
 Requires Nvidia driver 398.22 or newer / 399.24  recommended 
 http://us.download.nvidia.com/Windows/399.24/399.24-desktop-win10-64bit-international-whql.exe
 
-Made For & Tested with 8x10603gb 6x1070 6x1070ti 6x1080ti (users have reported up to 12cards working have not tested myself)
+Made For & Tested with 6x1070 6x1070ti 6x1080ti (users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
 
 *****

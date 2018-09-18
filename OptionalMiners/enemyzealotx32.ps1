@@ -1,10 +1,10 @@
 if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1;RegisterLoaded(".\Include.ps1")}
 
-$Path = ".\Bin\NVIDIA-enemyzealotx32\z-enemy.exe"
-$Uri = "http://nemos.dx.am/opt/nemos/z-enemy.1-19-cuda9.2_x32.zip"
+$Path = ".\Bin\NVIDIA-enemyzealot32120\z-enemy.exe"
+$Uri = "http://nemos.dx.am/opt/nemos/z-enemy.1-20-cuda9.2_x32_v2.zip"
 
 $Commands = [PSCustomObject]@{
-"aeriumx" = " -i 21" #AeriumX(testing)
+"aeriumx" = " -i 21" #AeriumX(fastest)
 #"hsr" = "" #Hsr
 #"phi" = "" #Phi
 #"phi2" = "" #Phi2 (cryptodredge faster)
@@ -14,10 +14,10 @@ $Commands = [PSCustomObject]@{
 #"x16s" = "" #X16s (trex faster)
 #"sonoa" = " -i 21" #SonoA (trex faster)
 #"skunk" = "" #Skunk (trex faster)
-"timetravel" = "" #Timetravel (fastest)
-"tribus" = "" #Tribus (cryptodredge faster)
+#"timetravel" = "" #Timetravel (x64120 faster)
+#"tribus" = "" #Tribus (cryptodredge faster)
 #"c11" = "" #C11 (trex faster)
-#"xevan" = "" #Xevan (x64 slighty faster/ccminerxevan7.5/9 faster)
+#"xevan" = "" #Xevan (x64120 faster)
 #"x17" = "" #X17 (trex faster)
 "hex" = " -i 23" #Hex (fastest)
 }

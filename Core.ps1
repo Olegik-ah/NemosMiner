@@ -16,8 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           Core.ps1
-version:        3.4.1
-version date:   14 September 2018
+version:        3.4.2
+version date:   18 September 2018
 #>
 
 Function InitApplication {
@@ -263,7 +263,11 @@ Function NPMCycle {
     $Variables.StatusText = "Loading miners.."
     $Variables | Add-Member -Force @{Miners = @()}
     $StartPort = 4068
-    $Variables.Miners = if (Test-Path "Miners") {@(Get-ChildItemContent "Miners"; if ($Config.IncludeOptionalMiners -and (Test-Path "OptionalMiners")) {Get-ChildItemContent "OptionalMiners"}) | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} | 
+    $Variables.Miners = if (Test-Path "Miners") {@(
+                Get-ChildItemContent "Miners"
+                if ($Config.IncludeOptionalMiners -and (Test-Path "OptionalMiners")) {Get-ChildItemContent "OptionalMiners"}
+                if (Test-Path "CustomMiners") { Get-ChildItemContent "CustomMiners"}
+            ) | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
             Where {$Config.Type.Count -eq 0 -or (Compare $Config.Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} | 
             Where {!$Config.Algorithm -or (Compare $Config.Algorithm $_.HashRates.PSObject.Properties.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} | 
             Where {$Config.MinerName.Count -eq 0 -or (Compare $Config.MinerName $_.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}
@@ -407,6 +411,9 @@ Function NPMCycle {
         if ($filtered.Count -eq 0) {
             if ($_.Process -eq $null) {
                 $_.Status = "Failed"
+                  # Try to kill any process with the same path, in case it is still running but the process handle is incorrect
+                $KillPath = $_.Path
+                Get-Process | Where-Object {$_.Path -eq $KillPath} | Stop-Process -Force
             }
             elseif ($_.Process.HasExited -eq $false) {
                 $_.Active += (Get-Date) - $_.Process.StartTime
@@ -414,6 +421,10 @@ Function NPMCycle {
                 Sleep 1
                 # simply "Kill with power"
                 Stop-Process $_.Process -Force | Out-Null
+                Sleep 1
+                # Kill any process with the same path, in case $_.Process is incorrect
+                $KillPath = $_.Path
+                Get-Process | Where-Object {$_.Path -eq $KillPath} | Stop-Process -Force
                 $Variables.StatusText = "closing current miner and switching"
                 Sleep 1
                 $_.Status = "Idle"

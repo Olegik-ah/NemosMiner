@@ -16,8 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           include.ps1
-version:        3.4.1
-version date:   14 September 2018
+version:        3.4.2
+version date:   18 September 2018
 #>
 
 # New-Item -Path function: -Name ((Get-FileHash $MyInvocation.MyCommand.path).Hash) -Value {$true} -EA SilentlyContinue | out-null
@@ -37,6 +37,166 @@ Function Global:IsLoaded ($File) {
         ls function: | ? {$_.File -eq (Resolve-Path $File).Path} | Remove-Item
         $false
     }
+}
+
+Function Start-IdleTracking {
+    # Function tracks how long the system has been idle and controls the paused state
+    $Global:IdleRunspace = [runspacefactory]::CreateRunspace()
+    $IdleRunspace.Open()
+    $IdleRunspace.SessionStateProxy.SetVariable('Config', $Config)
+    $IdleRunspace.SessionStateProxy.SetVariable('Variables', $Variables)
+    $IdleRunspace.SessionStateProxy.SetVariable('StatusText', $StatusText)
+    $IdleRunspace.SessionStateProxy.Path.SetLocation((Split-Path $script:MyInvocation.MyCommand.Path))
+    $Global:idlepowershell = [powershell]::Create()
+    $idlePowershell.Runspace = $IdleRunspace
+    $idlePowershell.AddScript( {
+            # No native way to check how long the system has been idle in powershell. Have to use .NET code.
+            Add-Type -TypeDefinition @'
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+namespace PInvoke.Win32 {
+    public static class UserInput {
+        [DllImport("user32.dll", SetLastError=false)]
+        private static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct LASTINPUTINFO {
+            public uint cbSize;
+            public int dwTime;
+        }
+
+        public static DateTime LastInput {
+            get {
+                DateTime bootTime = DateTime.UtcNow.AddMilliseconds(-Environment.TickCount);
+                DateTime lastInput = bootTime.AddMilliseconds(LastInputTicks);
+                return lastInput;
+            }
+        }
+        public static TimeSpan IdleTime {
+            get {
+                return DateTime.UtcNow.Subtract(LastInput);
+            }
+        }
+        public static int LastInputTicks {
+            get {
+                LASTINPUTINFO lii = new LASTINPUTINFO();
+                lii.cbSize = (uint)Marshal.SizeOf(typeof(LASTINPUTINFO));
+                GetLastInputInfo(ref lii);
+                return lii.dwTime;
+            }
+        }
+    }
+}
+'@
+            Start-Transcript ".\logs\IdleTracking.log" -Append -Force
+            $ProgressPreference = "SilentlyContinue"
+            . .\Include.ps1; RegisterLoaded(".\Include.ps1")
+            While ($True) {
+                if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1; RegisterLoaded(".\Include.ps1")}
+                if (!(IsLoaded(".\Core.ps1"))) {. .\Core.ps1; RegisterLoaded(".\Core.ps1")}
+                $IdleSeconds = [math]::Round(([PInvoke.Win32.UserInput]::IdleTime).TotalSeconds)
+
+                # Only do anything if Mine only when idle is turned on
+                If ($Config.MineWhenIdle) {
+                    If ($Variables.Paused) {
+                        # Check if system has been idle long enough to unpause
+                        If ($IdleSeconds -gt $Config.IdleSec) {
+                            $Variables.Paused = $False
+                            $Variables.RestartCycle = $True
+                            $Variables.StatusText = "System idle for $IdleSeconds seconds, starting mining..."
+                        }
+                    } 
+                    else {
+                        # Pause if system has become active
+                        If ($IdleSeconds -lt $Config.IdleSec) {
+                            $Variables.Paused = $True
+                            $Variables.RestartCycle = $True
+                            $Variables.StatusText = "System active, pausing mining..."
+                        }
+                    }
+                }
+                Start-Sleep 1
+            }
+    } ) | Out-Null
+    $Variables | Add-Member -Force @{IdleRunspaceHandle = $idlePowershell.BeginInvoke()}
+}
+
+Function Start-Mining {
+    # Starts the runspace that runs NPMCycle
+    $Global:CycleRunspace = [runspacefactory]::CreateRunspace()
+    $CycleRunspace.Open()
+    $CycleRunspace.SessionStateProxy.SetVariable('Config', $Config)
+    $CycleRunspace.SessionStateProxy.SetVariable('Variables', $Variables)
+    $CycleRunspace.SessionStateProxy.SetVariable('StatusText', $StatusText)
+    $CycleRunspace.SessionStateProxy.Path.SetLocation((Split-Path $script:MyInvocation.MyCommand.Path))
+    $Global:powershell = [powershell]::Create()
+    $powershell.Runspace = $CycleRunspace
+    $powershell.AddScript( {
+        Start-Transcript ".\logs\CoreCyle.log" -Append -Force
+        $ProgressPreference = "SilentlyContinue"
+        . .\Include.ps1; RegisterLoaded(".\Include.ps1")
+        While ($True) {
+            if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1; RegisterLoaded(".\Include.ps1")}
+            if (!(IsLoaded(".\Core.ps1"))) {. .\Core.ps1; RegisterLoaded(".\Core.ps1")}
+            If($Variables.Paused) {
+                # Run a dummy cycle to keep the UI updating.
+
+                # Keep updating exchange rate
+                $Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=BTC" -TimeoutSec 15 -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
+                $Config.Currency | Where-Object {$Rates.$_} | ForEach-Object {$Rates | Add-Member $_ ([Double]$Rates.$_) -Force}
+                $Variables | Add-Member -Force @{Rates = $Rates}
+
+                # Update the UI every 30 seconds, and the Last 1/6/24hr and text window every 2 minutes
+                for ($i = 0; $i -lt 4; $i++) {
+                    if ($i -eq 3) {
+                        $Variables | Add-Member -Force @{EndLoop = $True}
+                    }
+                    else {
+                        $Variables | Add-Member -Force @{EndLoop = $False}
+                    }
+
+                    $Variables.StatusText = "Mining paused"
+                    Start-Sleep 30
+                }
+            }
+            else {
+                NPMCycle
+                Sleep $Variables.TimeToSleep
+            }
+        }
+    }) | Out-Null
+    $Variables | add-Member -Force @{CycleRunspaceHandle = $powershell.BeginInvoke()}
+}
+
+Function Stop-Mining {
+    # Kills any active miners and stops the runspace that hosts NPMCycle
+    If ($Variables.ActiveMinerPrograms) {
+        $Variables.ActiveMinerPrograms | ForEach {
+            [Array]$filtered = ($BestMiners_Combo | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments)
+            if ($filtered.Count -eq 0) {
+                if ($_.Process -eq $null) {
+                    $_.Status = "Failed"
+                }
+                elseif ($_.Process.HasExited -eq $false) {
+                    $_.Active += (Get-Date) - $_.Process.StartTime
+                    $_.Process.CloseMainWindow() | Out-Null
+                    Sleep 1
+                    # simply "Kill with power"
+                    Stop-Process $_.Process -Force | Out-Null
+                    # Try to kill any process with the same path, in case it is still running but the process handle is incorrect
+                    $KillPath = $_.Path
+                    Get-Process | Where-Object {$_.Path -eq $KillPath} | Stop-Process -Force
+                    Write-Host -ForegroundColor Yellow "closing miner"
+                    Sleep 1
+                    $_.Status = "Idle"
+                }
+            }
+        }
+    }
+
+    $Global:CycleRunspace.Close()
+    $Global:powershell.Dispose()
 }
 
 Function Update-Status ($Text) {
@@ -856,9 +1016,6 @@ Function Autoupdate {
             # copy files 
             Update-Status("Copying files...")
             Copy-Item .\$UpdateFileName\* .\ -force -Recurse
-
-            # Update Optional Miners to Miners if in use
-            ls .\OptionalMiners\ | ? {$_.name -in (ls .\Miners\).name} | % {Copy-Item -Force $_.FullName .\Miners\}
 
             # Remove any obsolete miner file (ie. Not in new version Miners or OptionalMiners)
             ls .\Miners\ | ? {$_.name -notin (ls .\$UpdateFileName\Miners\).name -and $_.name -notin (ls .\$UpdateFileName\OptionalMiners\).name} | % {Remove-Item -Force $_.FullName}
