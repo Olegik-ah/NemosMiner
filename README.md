@@ -1,6 +1,6 @@
  ![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
 # NemosMiner  
-Updated 21 September 2018
+Updated 29 September 2018
 [![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
 ![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
 
@@ -17,6 +17,7 @@ NemosMiner Monitors mining pools in real-time in order to find the most profitab
 	 Fully automated 
 	 Auto Downloads Miners
 	 Auto Updates
+	 Monitoring
 
 *****
 
@@ -38,8 +39,15 @@ Easy configuration, easy start:
 
 *****
 
-Additional features list, made possible by "MrPlus"
-Speical Thankyou To "MrPlus" amazing work with the GUI, PLUS profit calculations & Earnings Tracking
+NemosMiner Monitoring Server 
+
+Keep tabs on all your mining rigs from one place
+
+ You can now optionally monitor all your workers remotely, both in the GUI and via [our website](https://nemosminer.com).  
+ [Monitoring setup instructions](https://nemosminer.com/setup.php).
+
+   
+*****
 
    GUI
    
@@ -171,8 +179,8 @@ https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-Requires Nvidia driver 398.22 or newer / 399.24  recommended 
-http://us.download.nvidia.com/Windows/399.24/399.24-desktop-win10-64bit-international-whql.exe
+Requires Nvidia driver 398.22 or newer / 411.63  recommended 
+http://us.download.nvidia.com/Windows/411.63/411.63-desktop-win10-64bit-international-whql.exe
 
 Made For & Tested with 6x1070 6x1070ti 6x1080ti (users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
