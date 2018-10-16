@@ -16,8 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           Core.ps1
-version:        3.5
-version date:   26 September 2018
+version:        3.5.1
+version date:   16 October 2018
 #>
 
 Function InitApplication {
@@ -30,8 +30,13 @@ Function InitApplication {
     [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
     Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
     Get-ChildItem . -Recurse | Unblock-File
-    Update-Status("INFO: Adding NemosMiner path to Windows Defender's exclusions.. (may show an error if Windows Defender is disabled)")
-    try {if ((Get-MpPreference).ExclusionPath -notcontains (Convert-Path .)) {Start-Process powershell -Verb runAs -ArgumentList "Add-MpPreference -ExclusionPath '$(Convert-Path .)'"}}catch {}
+	if (Get-MpComputerStatus -ErrorAction SilentlyContinue) {
+		Update-Status("INFO: Adding NemosMiner path to Windows Defender's exclusions..")
+		try {if ((Get-MpPreference).ExclusionPath -notcontains (Convert-Path .)) {Start-Process powershell -Verb runAs -ArgumentList "Add-MpPreference -ExclusionPath '$(Convert-Path .)'"}}catch {}
+	} 
+	else {
+		Update-Status("INFO: Windows Defender is disabled, make sure to exclude NemosMiner directory from your antivirus program")
+	}
     if ($Proxy -eq "") {$PSDefaultParameterValues.Remove("*:Proxy")}
     else {$PSDefaultParameterValues["*:Proxy"] = $Proxy}
     Update-Status("Initializing Variables...")
@@ -153,8 +158,8 @@ Function NPMCycle {
     if ((Get-Date).AddDays(-1).AddMinutes($Config.Donate) -ge $Variables.LastDonated -and $Variables.DonateRandom.wallet -eq $Null) {
         # Get donation addresses randomly from agreed developers list
         # This will fairly distribute donations to Developers
-        # Developers list and wallets is publicly available at: http://nemosminer.x10host.com/devlist.json 
-        try {$Donation = Invoke-WebRequest "http://nemosminer.x10host.com/devlist.json" -TimeoutSec 15 -UseBasicParsing -Headers @{"Cache-Control" = "no-cache"} | ConvertFrom-Json
+        # Developers list and wallets is publicly available at: https://nemosminer.com/data/devlist.json 
+        try {$Donation = Invoke-WebRequest "https://nemosminer.com/data/devlist.json" -TimeoutSec 15 -UseBasicParsing -Headers @{"Cache-Control" = "no-cache"} | ConvertFrom-Json
         }
         catch {$Donation = @([PSCustomObject]@{Name = "mrplus"; Wallet = "134bw4oTorEJUUVFhokDQDfNqTs7rBMNYy"; UserName = "mrplus"}, [PSCustomObject]@{Name = "nemo"; Wallet = "1QGADhdMRpp9Pk5u5zG1TrHKRrdK5R81TE"; UserName = "nemo"})
         }
@@ -193,15 +198,15 @@ Function NPMCycle {
     $Variables.StatusText = "Loading pool stats.."
     $PoolFilter = @()
     $Config.PoolName | foreach {$PoolFilter += ($_ += ".*")}
-    Do {
-        $AllPools = if (Test-Path "Pools") {Get-ChildItemContent "Pools" -Include $PoolFilter | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} | 
-                Where {$_.SSL -EQ $Config.SSL -and ($Config.PoolName.Count -eq 0 -or ($_.Name -in $Config.PoolName)) -and (!$Config.Algorithm -or $_.Algorithm -in $Config.Algorithm)}
-        }
-        if ($AllPools.Count -eq 0) {
-            $Variables.StatusText = "! Error contacting pool retrying in 30 seconds.."
-            Sleep 30
-        }
-    } While ($AllPools.Count -eq 0)
+	Do {
+		$AllPools = if(Test-Path "Pools"){Get-ChildItemContent "Pools" -Include $PoolFilter | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} | 
+			Where {$_.SSL -EQ $Config.SSL -and ($Config.PoolName.Count -eq 0 -or ($_.Name -in $Config.PoolName)) -and (!$Config.Algorithm -or ((!($Config.Algorithm | ? {$_ -like "+*"}) -or $_.Algorithm -in ($Config.Algorithm | ? {$_ -like "+*"}).Replace("+","")) -and (!($Config.Algorithm | ? {$_ -like "-*"}) -or $_.Algorithm -notin ($Config.Algorithm | ? {$_ -like "-*"}).Replace("-",""))) )}
+		}
+			if ($AllPools.Count -eq 0) {
+			$Variables.StatusText = "! Error contacting pool retrying in 30 seconds.."
+			Sleep 30
+		}
+	} While ($AllPools.Count -eq 0)
     $Variables.StatusText = "Computing pool stats.."
     # Use location as preference and not the only one
     $AllPools = ($AllPools | ? {$_.location -eq $Config.Location}) + ($AllPools | ? {$_.name -notin ($AllPools | ? {$_.location -eq $Config.Location}).Name})
@@ -269,7 +274,7 @@ Function NPMCycle {
                 if (Test-Path "CustomMiners") { Get-ChildItemContent "CustomMiners"}
             ) | ForEach {$_.Content | Add-Member @{Name = $_.Name} -PassThru} |
             Where {$Config.Type.Count -eq 0 -or (Compare $Config.Type $_.Type -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} | 
-            Where {!$Config.Algorithm -or (Compare $Config.Algorithm $_.HashRates.PSObject.Properties.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} | 
+            Where {!($Config.Algorithm | ? {$_.StartsWith("+")}) -or (Compare (($Config.Algorithm | ? {$_.StartsWith("+")}).Replace("+","")) $_.HashRates.PSObject.Properties.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0} | 
             Where {$Config.MinerName.Count -eq 0 -or (Compare $Config.MinerName $_.Name -IncludeEqual -ExcludeDifferent | Measure).Count -gt 0}
     }
     $Variables.Miners = $Variables.Miners | ForEach {

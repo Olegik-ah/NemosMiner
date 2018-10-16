@@ -1,7 +1,7 @@
 if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1;RegisterLoaded(".\Include.ps1")}
 
-$Path = ".\Bin\NVIDIA-enemyzealot32121a\z-enemy.exe"
-$Uri = "http://nemos.dx.am/opt/nemos/z-enemy.1-21a-cuda9.2_x32.zip"
+$Path = ".\Bin\NVIDIA-enemyzealot32122\z-enemy.exe"
+$Uri = "https://nemosminer.com/data/optional/z-enemy.1-22-cuda10.0_x32.7z"
 
 $Commands = [PSCustomObject]@{
 "aeriumx" = " -i 20" #AeriumX(2080)
@@ -11,11 +11,11 @@ $Commands = [PSCustomObject]@{
 #"phi2" = "" #Phi2 (cryptodredge faster)
 "poly" = " -i 20" #Polytimos(2080) 
 "bitcore" = " -i 20" #Bitcore (2080)
-"x16r" = " -i 20" #X16r (2080)
-"x16s" = " -i 20" #X16s (2080)
+#"x16r" = " -i 20" #X16r (x64)
+#"x16s" = " -i 20" #X16s (x64)
 "sonoa" = " -i 20" #SonoA (2080)
-"skunk" = " -i 20" #Skunk (2080)
-"timetravel" = " -i 20" #Timetravel (x64120 faster)
+#"skunk" = " -i 20" #Skunk (trex)
+#"timetravel" = " -i 20" #Timetravel (x64120 faster)
 #"tribus" = "" #Tribus (cryptodredge faster)
 "c11" = " -i 20" #C11 (2080)
 "xevan" = " -i 20" #Xevan (x64120 faster)

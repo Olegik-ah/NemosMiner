@@ -1,6 +1,9 @@
  ![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
-# NemosMiner  
-Updated 29 September 2018
+# NemosMiner
+https://nemosminer.com
+
+Updated 16 October 2018
+
 [![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
 ![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
 
@@ -110,7 +113,6 @@ Keep tabs on all your mining rigs from one place
       Displays BTC/H and BTC/D as well a estimation of when the pool payment threshold will be reached.
       Supported pools:
             ahashpool
-            zergpool
             zpool
             nicehash
             miningpoolhub (partial)
@@ -140,7 +142,36 @@ Keep tabs on all your mining rigs from one place
       Simple algo switching log in csv switching.log file found in Logs folder.
       You can easily track switching rate.
 
-   Pools variants
+   Algo selection / removal
+  
+      +algo for algo selection
+      -algo for algo removal
+
+      If "+" Used, all selected algo have to be listed
+      If "Minus" Used, all algo selected but exluded ones.
+
+      Do not combine + and - for the same algo
+
+     Examples:
+     Algo list = -x16r
+     Will mine anything but x16r
+
+     Algo list = -x16r,-bcd
+     Will mine anything but x16r and bcd
+
+     Algo list = +x16r
+     Will mine only x16r
+
+     Algo list = +x16r,+bcd
+     Will mine only x16r and BCD
+
+     Algo list = +x16r
+     Will mine only x16r
+
+     Algo list blank
+     Will mine anything
+  
+  Pools variants
 
       24hr - uses last 24hour Actual API too request profit
          -Low switching rate
@@ -179,10 +210,9 @@ https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-Requires Nvidia driver 398.22 or newer / 411.63  recommended 
-http://us.download.nvidia.com/Windows/411.63/411.63-desktop-win10-64bit-international-whql.exe
+Requires Nvidia driver 416.16 / http://us.download.nvidia.com/Windows/416.16/416.16-desktop-win10-64bit-international-whql.exe
 
-Made For & Tested with 6x1070 6x1070ti 6x1080ti (users have reported up to 12cards working have not tested myself)
+Made For & Tested with 6x1060 6gb 6x1070 6x1070ti 6x1080ti 6x2080 (users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
 
 *****
