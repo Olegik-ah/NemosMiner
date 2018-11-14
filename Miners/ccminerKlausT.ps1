@@ -1,6 +1,6 @@
 if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1;RegisterLoaded(".\Include.ps1")}
 
-$Path = ".\Bin\NVIDIA-CcminerKlaust\ccminer.exe"
+$Path = ".\Bin\NVIDIA-CcminerKlaustr11\ccminer.exe"
 $Uri = "https://github.com/nemosminer/ccminerKlausT-r11-fix/releases/download/r11-fix/ccminerKlausTr11.7z"
 
 $Commands = [PSCustomObject]@{
@@ -22,22 +22,21 @@ $Commands = [PSCustomObject]@{
     "yescrypt" = " -d $($Config.SelGPUCC)" #yescrypt
     "yescryptR8" = " -d $($Config.SelGPUCC)"
     "yescryptR16" = " -d $($Config.SelGPUCC)" #YescryptR16 #Yenten
-    "yescryptR32" = " -d $($Config.SelGPUCC)" #YescryptR32 
+    "yescryptR32" = " -i 12.25 -d $($Config.SelGPUCC)" #YescryptR32 
     "yescryptR16v2" = " -d $($Config.SelGPUCC)" #PPN
-    #"neoscrypt" = " -d $($Config.SelGPUCC)" #NeoScrypt
+    "neoscrypt" = " -d $($Config.SelGPUCC)" #NeoScrypt
     #"nist5" = " -d $($Config.SelGPUCC)" #Nist5
     #"pascal" = "" #Pascal
     #"qubit" = "" #Qubit
     #"scrypt" = "" #Scrypt
     #"sia" = "" #Sia
     #"sib" = "" #Sib
-    "skein" = " -d $($Config.SelGPUCC)" #Skein
+    #"skein" = " -d $($Config.SelGPUCC)" #Skein
     #"timetravel" = "" #Timetravel
     #"x11" = "" #X11
     #"veltor" = "" #Veltor
     #"x11evo" = "" #X11evo
     #"c11" = " -d $($Config.SelGPUCC)" #C11
-    "neoscrypt" = " -d $($Config.SelGPUCC)" #Neoscrypt
 }
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName

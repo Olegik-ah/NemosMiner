@@ -1,10 +1,15 @@
- ![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
+Copyright (c) 2018 Nemo	(https://github.com/nemosminer/NemosMiner)
+
+Copyright (c) 2018 MrPlus	(https://github.com/MrPlusGH/NPlusMiner)
+
+![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
 # NemosMiner
 https://nemosminer.com
 
-Updated 16 October 2018
+Updated 14 November 2018
 
 [![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
+[![GitHub license](https://img.shields.io/github/license/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/blob/master/LICENSE)
 ![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
 
 by Nemo/Minerx117
@@ -35,23 +40,57 @@ Easy configuration, easy start:
       
       note: 2. you only need to change Username if you are using Miningpoolhub
       
-  Fee:
+     Algo selection / removal
+  
+      +algo for algo selection
+      -algo for algo removal
+
+      If "+" Used, all selected algo have to be listed
+      If "Minus" Used, all algo selected but exluded ones.
+
+      Do not combine + and - for the same algo
+
+     Examples:
+     Algo list = -x16r
+     Will mine anything but x16r
+
+     Algo list = -x16r,-bcd
+     Will mine anything but x16r and bcd
+
+     Algo list = +x16r
+     Will mine only x16r
+
+     Algo list = +x16r,+bcd
+     Will mine only x16r and BCD
+
+     Algo list = +x16r
+     Will mine only x16r
+
+     Algo list blank
+     Will mine anything
+  
+  Pools variants
+
+      24hr - uses last 24hour Actual API too request profit
+         -Low switching rate
+      plus - uses advanced calculations to reduce switching
+         -Medium switching rate
+      normal - uses current estimate API too request profit
+         -High switching rate
+  
+  Developer/Contributors Fee: 
+  list and wallets is publicly available at: https://nemosminer.com/data/devlist.json
      
       There is a 8 minute per day fee (0.5%), that can be changed in the config (Minimum is 3)0.2%
       We want to stay completely transparent on the way fees are managed in the product. Donations occurs once every 24 hours for the selected amount of time (default 8 minutes). The first donation sequence occurs 1 hour after miners are started. If Interval is set higher than the donation time, the interval will prime. Example for default parameters. Miners started at 10, First donation cycle runs at 10:52 untill 11, Next donation cycle occurs 24 hours after.All donation time and addresses are recording in the logs folder.
 
-*****
+NemosMiner Monitoring Server : https://nemosminer.com
 
-NemosMiner Monitoring Server 
-
-Keep tabs on all your mining rigs from one place
-
- You can now optionally monitor all your workers remotely, both in the GUI and via [our website](https://nemosminer.com).  
- [Monitoring setup instructions](https://nemosminer.com/setup.php).
+     Keep tabs on all your mining rigs from one place
+     You can now optionally monitor all your workers remotely, both in the GUI and via https://nemosminer.com  
+     Monitoring setup instructions https://nemosminer.com/setup.php 
 
    
-*****
-
    GUI
    
       Since version 3.0 NemosMiner has a GUI making it easy to configure and run.
@@ -142,44 +181,6 @@ Keep tabs on all your mining rigs from one place
       Simple algo switching log in csv switching.log file found in Logs folder.
       You can easily track switching rate.
 
-   Algo selection / removal
-  
-      +algo for algo selection
-      -algo for algo removal
-
-      If "+" Used, all selected algo have to be listed
-      If "Minus" Used, all algo selected but exluded ones.
-
-      Do not combine + and - for the same algo
-
-     Examples:
-     Algo list = -x16r
-     Will mine anything but x16r
-
-     Algo list = -x16r,-bcd
-     Will mine anything but x16r and bcd
-
-     Algo list = +x16r
-     Will mine only x16r
-
-     Algo list = +x16r,+bcd
-     Will mine only x16r and BCD
-
-     Algo list = +x16r
-     Will mine only x16r
-
-     Algo list blank
-     Will mine anything
-  
-  Pools variants
-
-      24hr - uses last 24hour Actual API too request profit
-         -Low switching rate
-      plus - uses advanced calculations to reduce switching
-         -Medium switching rate
-      normal - uses current estimate API too request profit
-         -High switching rate
-
    Console Display Options
    
       Use -UIStyle Light or -UIStyle Full in config.json
@@ -210,20 +211,12 @@ https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-Requires Nvidia driver 416.16 / http://us.download.nvidia.com/Windows/416.16/416.16-desktop-win10-64bit-international-whql.exe
+recommended Nvidia driver 416.81 / http://us.download.nvidia.com/Windows/416.81/416.81-desktop-win10-64bit-international-whql.exe
 
-Made For & Tested with 6x1060 6gb 6x1070 6x1070ti 6x1080ti 6x2080 (users have reported up to 12cards working have not tested myself)
+Made For & Tested with 6x1060 6gb 6x1070 6x1070ti 6x1080ti 6x2070 6x2080 6x2080ti (users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
 
 *****
 
-Any donations will be much appreciated:
-
-aaronsace = 1MsrCoAt8qM53HUMsUxvy9gMj3QVbHLazH
-
-nemo = 1QGADhdMRpp9Pk5u5zG1TrHKRrdK5R81TE
-
-MrPlus = 134bw4oTorEJUUVFhokDQDfNqTs7rBMNYy
-
-Licensed under the GNU General Public License v3.1
+Licensed under the GNU General Public License v3.0
 Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights. https://github.com/nemosminer/NemosMiner/blob/master/LICENSE

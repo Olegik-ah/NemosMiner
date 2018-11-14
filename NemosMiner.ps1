@@ -16,8 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           NemosMiner.ps1
-version:        3.5.1
-version date:   16 October 2018
+version:        3.5.2
+version date:   29 October 2018
 #>
 
 param(
@@ -26,7 +26,7 @@ param(
     [Parameter(Mandatory = $false)]
     [String]$UserName = "nemo", 
     [Parameter(Mandatory = $false)]
-    [String]$WorkerName = "ID=NemosMiner-v3.5.1", 
+    [String]$WorkerName = "ID=NemosMiner-v3.5.2", 
     [Parameter(Mandatory = $false)]
     [Int]$API_ID = 0, 
     [Parameter(Mandatory = $false)]
@@ -89,6 +89,12 @@ This is free software, and you are welcome to redistribute it
 under certain conditions.
 https://github.com/nemosminer/NemosMiner/blob/master/LICENSE
 
+NemosMiner
+Copyright (c) 2018 Nemo and MrPlus
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions.
+https://github.com/nemosminer/NemosMiner/blob/master/LICENSE
 "@
 
 $Global:Config = [hashtable]::Synchronized(@{})
@@ -306,15 +312,18 @@ Function Form_Load {
                     If ($Variables.Earnings -and $Config.TrackEarnings) {
                         # $Variables.Earnings.Values | select Pool,Wallet,Balance,AvgDailyGrowth,EstimatedPayDate,TrustLevel | ft *
                         $Variables.Earnings.Values | foreach {
-                            Write-Host "+++++" $_.Wallet -B DarkBlue -F DarkGray -NoNewline; Write-Host " " $_.pool "Balance="$_.balance ("{0:P0}" -f ($_.balance / $_.PaymentThreshold))
-                            Write-Host "Trust Level                     " ("{0:P0}" -f $_.TrustLevel) -NoNewline; Write-Host -F darkgray " Avg based on [" ("{0:dd\ \d\a\y\s\ hh\:mm}" -f ($_.Date - $_.StartTime))"]"
-                            Write-Host "Average BTC/H                    BTC =" ("{0:N8}" -f $_.AvgHourlyGrowth) "| mBTC =" ("{0:N3}" -f ($_.AvgHourlyGrowth * 1000))
-                            Write-Host "Average BTC/D" -NoNewline; Write-Host "                    BTC =" ("{0:N8}" -f ($_.BTCD)) "| mBTC =" ("{0:N3}" -f ($_.BTCD * 1000)) -F Yellow
-                            Write-Host "Estimated Pay Date              " $_.EstimatedPayDate ">" $_.PaymentThreshold "BTC"
-                            # Write-Host "+++++" -F Blue
+                            Write-Host "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" -F DarkGray
+							Write-Host "Pool name           " -NoNewline; Write-Host $_.pool -F Yellow
+							Write-Host "Wallet              " -NoNewline; Write-Host $_.Wallet -F Yellow
+							Write-Host "Balance            " $_.balance ("{0:P0}" -f ($_.balance / $_.PaymentThreshold))
+                            Write-Host "Trust Level        " ("{0:P0}" -f $_.TrustLevel) -NoNewline; Write-Host -F darkgray " Avg based on [" ("{0:dd\ \d\a\y\s\ hh\:mm}" -f ($_.Date - $_.StartTime))"]"
+                            Write-Host "Average BTC/H" -NoNewline; Write-Host " BTC = " -F DarkGray -NoNewline; Write-Host ("{0:N8}" -f $_.AvgHourlyGrowth) "| mBTC =" ("{0:N3}" -f ($_.AvgHourlyGrowth * 1000))
+                            Write-Host "Average BTC/D" -NoNewline; Write-Host " BTC =" ("{0:N8}" -f ($_.BTCD)) "| mBTC =" ("{0:N3}" -f ($_.BTCD * 1000)) -F Yellow
+                            Write-Host "Estimated Pay Date " $_.EstimatedPayDate ">" $_.PaymentThreshold "BTC"
+                            # Write-Host "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" -F DarkGray
                         }
                     }
-                    Write-Host "+++++" -F Blue
+                    Write-Host "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" -F DarkGray
                     if ($Variables.Miners | ? {$_.HashRates.PSObject.Properties.Value -eq $null}) {$Config.UIStyle = "Full"}
                     IF ($Config.UIStyle -eq "Full") {
 
@@ -430,7 +439,7 @@ $MainForm.add_Shown( {
         # Check if new version is available
         Update-Status("Checking version")
         try {
-            $Version = Invoke-WebRequest "http://nemosminer.x10host.com/version.json" -TimeoutSec 15 -UseBasicParsing -Headers @{"Cache-Control" = "no-cache"} | ConvertFrom-Json
+            $Version = Invoke-WebRequest "https://nemosminer.com/data/version.json" -TimeoutSec 15 -UseBasicParsing -Headers @{"Cache-Control" = "no-cache"} | ConvertFrom-Json
         }
         catch {$Version = Get-content ".\Config\version.json" | Convertfrom-json}
         If ($Version -ne $null) {$Version | ConvertTo-json | Out-File ".\Config\version.json"}
@@ -649,6 +658,15 @@ $LabelGitHub.ActiveLinkColor = "RED"
 $LabelGitHub.Text = "NemosMiner on GitHub"
 $LabelGitHub.add_Click( {[system.Diagnostics.Process]::start("https://github.com/nemosminer/NemosMiner/releases")})
 $MainFormControls += $LabelGitHub
+
+$LabelCopyright = New-Object System.Windows.Forms.LinkLabel
+$LabelCopyright.Location = New-Object System.Drawing.Size(415, 80)
+$LabelCopyright.Size = New-Object System.Drawing.Size(200, 20)
+$LabelCopyright.LinkColor = "BLUE"
+$LabelCopyright.ActiveLinkColor = "RED"
+$LabelCopyright.Text = "Copyright (c) 2018 Nemo and MrPlus"
+$LabelCopyright.add_Click( {[system.Diagnostics.Process]::start("https://github.com/nemosminer/NemosMiner/blob/master/LICENSE")})
+$MainFormControls += $LabelCopyright
 
 $LabelAddress = New-Object system.Windows.Forms.Label
 $LabelAddress.text = "Wallet Address"

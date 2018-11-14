@@ -1,12 +1,11 @@
 if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1;RegisterLoaded(".\Include.ps1")}
 
-$Path = ".\Bin\NVIDIA-ccminer75xevan\ccminer.exe"
-$Uri = "https://github.com/nemosminer/ccminer-xevan/releases/download/Alexis78xevan/ccminerAlexis78Xevan.7z"
+$Path = ".\Bin\NVIDIA-ccminerx22i120\ccminer.exe"
+$Uri = "https://github.com/SUQAORG/ccminer-x22i/releases/download/v1.2.0/ccminer-x22i-bin-w64-v1.2.0.7z"
 
 $Commands = [PSCustomObject]@{
-    "xevan" = " -N 1 -d $($Config.SelGPUCC)" #Xevan(fastest on most 10series cards/enemyzealot1.18x32 faster on 1080ti's)
-    "skein" = " -N 1 -d $($Config.SelGPUCC) -i 27" #Skein
-}
+    "x22i" = " -N 1 -d $($Config.SelGPUCC)" #X22i
+    }
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 

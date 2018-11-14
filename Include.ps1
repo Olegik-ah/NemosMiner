@@ -1,14 +1,16 @@
+
 <#
+This file is part of NemosMiner
+Copyright (c) 2018 Nemo
+Copyright (c) 2018 MrPlus
 NemosMiner is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-
 NemosMiner is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #>
@@ -16,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           include.ps1
-version:        3.5.1
-version date:   16 October 2018
+version:        3.5.2
+version date:   29 October 2018
 #>
 
 # New-Item -Path function: -Name ((Get-FileHash $MyInvocation.MyCommand.path).Hash) -Value {$true} -EA SilentlyContinue | out-null
@@ -158,7 +160,7 @@ Function Update-Monitoring {
         }
         $DataJSON = ConvertTo-Json @($Data)
         # Calculate total estimated profit
-        $Profit = ([Math]::Round(($data | Measure-Object Profit -Sum).Sum, 8)).ToString()
+        $Profit = [string]([Math]::Round(($data | Measure-Object Profit -Sum).Sum, 8))
 
         # Send the request
         $Body = @{user = $Config.MonitoringUser; worker = $Config.WorkerName; version = $Version; status = $Status; profit = $Profit; data = $DataJSON}
