@@ -1,21 +1,24 @@
-
 <#
-This file is part of NemosMiner
-Copyright (c) 2018 Nemo
-Copyright (c) 2018 MrPlus
+Copyright (c) 2019 Nemo
+Copyright (c) 2019 MrPlus
 
 NemosMiner is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-NemosMiner is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+NemosMiner is distributed in the hope that it will be useful, See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#>
+
+<#
+Product:        NemosMiner
+File:           Core.ps1
+version:        3.6.6
+version date:   16 January 2019
 #>
 
 Function InitApplication {
@@ -208,6 +211,9 @@ Function NPMCycle {
     $Variables.StatusText = "Computing pool stats.."
     # Use location as preference and not the only one
     $AllPools = ($AllPools | ? {$_.location -eq $Config.Location}) + ($AllPools | ? {$_.name -notin ($AllPools | ? {$_.location -eq $Config.Location}).Name})
+    # Filter Algo based on Per Pool Config
+    $PoolsConf = $Config.PoolsConfig
+    $AllPools = $AllPools | Where {$_.Name -notin ($PoolsConf | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name) -or ($_.Name -in ($PoolsConf | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name) -and ((!($PoolsConf.($_.Name).Algorithm | ? {$_ -like "+*"}) -or ("+$($_.Algorithm)" -in $PoolsConf.($_.Name).Algorithm)) -and ("-$($_.Algorithm)" -notin $PoolsConf.($_.Name).Algorithm)))}
     # if($AllPools.Count -eq 0){$Variables.StatusText = "Error contacting pool, retrying.."; $timerCycle.Interval = 15000 ; $timerCycle.Start() ; return}
     $Pools = [PSCustomObject]@{}
     $Pools_Comparison = [PSCustomObject]@{}

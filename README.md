@@ -1,16 +1,16 @@
-Copyright (c) 2018 Nemo	(https://github.com/nemosminer/NemosMiner)
-
-Copyright (c) 2018 MrPlus	(https://github.com/MrPlusGH/NPlusMiner)
-
-![alt text](https://github.com/nemosminer/NemosMiner/blob/master/NM.png)
 # NemosMiner
-https://nemosminer.com
 
-Updated 14 November 2018
+Updated 20 January 2019
 
 [![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
 [![GitHub license](https://img.shields.io/github/license/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/blob/master/LICENSE)
 ![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
+
+Copyright (c) 2019 Nemo and MrPlus
+
+This is free software, and you are welcome to redistribute it
+under certain conditions.
+https://github.com/nemosminer/NemosMiner/blob/master/LICENSE
 
 by Nemo/Minerx117
 
@@ -78,11 +78,11 @@ Easy configuration, easy start:
       normal - uses current estimate API too request profit
          -High switching rate
   
-  Developer/Contributors Fee: 
+  Developer/Contributors Donation: 
   list and wallets is publicly available at: https://nemosminer.com/data/devlist.json
      
-      There is a 8 minute per day fee (0.5%), that can be changed in the config (Minimum is 3)0.2%
-      We want to stay completely transparent on the way fees are managed in the product. Donations occurs once every 24 hours for the selected amount of time (default 8 minutes). The first donation sequence occurs 1 hour after miners are started. If Interval is set higher than the donation time, the interval will prime. Example for default parameters. Miners started at 10, First donation cycle runs at 10:52 untill 11, Next donation cycle occurs 24 hours after.All donation time and addresses are recording in the logs folder.
+      There is a 8 minute per day donation (0.5%), that can be changed in the config (Minimum is 3)0.2%
+      We want to stay completely transparent on the way donations are managed in the product. Donations occurs once every 24 hours for the selected amount of time (default 8 minutes). The first donation sequence occurs 1 hour after miners are started. If Interval is set higher than the donation time, the interval will prime. Example for default parameters. Miners started at 10, First donation cycle runs at 10:52 untill 11, Next donation cycle occurs 24 hours after.All donation time and addresses are recording in the logs folder.
 
 NemosMiner Monitoring Server : https://nemosminer.com
 
@@ -121,6 +121,7 @@ NemosMiner Monitoring Server : https://nemosminer.com
             - UserName = your MPH user name
             - WorkerName = your worker name
             - PricePenaltyFactor = See explanation below
+	    - Algorithm = List of included or excluded Aglo on pool (see example files)
           - Usage
             - The file Config\PoolsConfig.json contains per pool configuration details. If a pool is listed in this file,
 	    the specific settings will be taken into account. If not, the setting for the entry name default will be used.
@@ -139,7 +140,7 @@ NemosMiner Monitoring Server : https://nemosminer.com
           - NiceHash has a 4% fee - Set PricePenaltyFactor to 0.96 (1-0.04)
           - You feel like a pool is exaggerating his estimations by 10% - Set PricePenaltyFactor to 0.9
 
-   ahashpoolplus / zergpoolplus / zpoolplus / blazepoolplus / phiphipoolplus / blockmastersplus / hashrefineryplus / starpoolplus
+  zergpoolplus/nlpoolplus/ahashpoolplus/zpoolplus/blazepoolplus/phiphipoolplus/blockmastersplus/hashrefineryplus/starpoolplus
    
       Uses calculations based on 24hractual and currentestimate ahashpool prices to get more realistic estimate.
       Includes some trust index based on past 1hr currentestimate variation from 24hr.
@@ -211,9 +212,9 @@ https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-recommended Nvidia driver 416.81 / http://us.download.nvidia.com/Windows/416.81/416.81-desktop-win10-64bit-international-whql.exe
+recommended/optimal Nvidia driver 417.35 / http://us.download.nvidia.com/Windows/417.35/417.35-desktop-win10-64bit-international-whql-rp.exe
 
-Made For & Tested with 6x1060 6gb 6x1070 6x1070ti 6x1080ti 6x2070 6x2080 6x2080ti (users have reported up to 12cards working have not tested myself)
+Tested with 6x1070 6x1070ti 6x1080ti 6x2080 (users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
 
 *****

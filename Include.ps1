@@ -1,15 +1,11 @@
-
 <#
-This file is part of NemosMiner
-Copyright (c) 2018 Nemo
-Copyright (c) 2018 MrPlus
+Copyright (c) 2019 Nemo
+Copyright (c) 2019 MrPlus
 NemosMiner is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
-NemosMiner is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+NemosMiner is distributed in the hope that it will be useful, See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -18,12 +14,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           include.ps1
-version:        3.5.2
-version date:   29 October 2018
+version:        3.6.6
+version date:   16 January 2019
 #>
 
 # New-Item -Path function: -Name ((Get-FileHash $MyInvocation.MyCommand.path).Hash) -Value {$true} -EA SilentlyContinue | out-null
 # Get-Item function::"$((Get-FileHash $MyInvocation.MyCommand.path).Hash)" | Add-Member @{"File" = $MyInvocation.MyCommand.path} -EA SilentlyContinue
+
+
+Function GetNVIDIADriverVersion {
+    ((gwmi win32_VideoController) | select name, description, @{Name = "NVIDIAVersion" ; Expression = {([regex]"[0-9.]{6}$").match($_.driverVersion).value.Replace(".", "").Insert(3, '.')}} | ? {$_.Description -like "*NVIDIA*"} | select -First 1).NVIDIAVersion
+}
  
 Function Global:RegisterLoaded ($File) {
     New-Item -Path function: -Name script:"$((Get-FileHash (Resolve-Path $File)).Hash)" -Value {$true} -EA SilentlyContinue | Add-Member @{"File" = (Resolve-Path $File).Path} -EA SilentlyContinue
@@ -120,7 +121,7 @@ namespace PInvoke.Win32 {
                 }
                 Start-Sleep 1
             }
-    } ) | Out-Null
+        } ) | Out-Null
     $Variables | Add-Member -Force @{IdleRunspaceHandle = $idlePowershell.BeginInvoke()}
 }
 
@@ -148,14 +149,14 @@ Function Update-Monitoring {
         $Data = $RunningMiners | Foreach-Object {
             $RunningMiner = $_
             [pscustomobject]@{
-                Name = $RunningMiner.Name
-                Path = Resolve-Path -Relative $RunningMiner.Path
-                Type = $RunningMiner.Type -join ','
-                Algorithm = $RunningMiner.Algorithms -join ','
-                Pool = $RunningMiner.Miner.Pools.PSObject.Properties.Value.Name -join ','
-                CurrentSpeed = $RunningMiner.HashRate -join ','
+                Name           = $RunningMiner.Name
+                Path           = Resolve-Path -Relative $RunningMiner.Path
+                Type           = $RunningMiner.Type -join ','
+                Algorithm      = $RunningMiner.Algorithms -join ','
+                Pool           = $RunningMiner.Miner.Pools.PSObject.Properties.Value.Name -join ','
+                CurrentSpeed   = $RunningMiner.HashRate -join ','
                 EstimatedSpeed = $RunningMiner.Miner.HashRates.PSObject.Properties.Value -join ','
-                Profit = $RunningMiner.Miner.Profit
+                Profit         = $RunningMiner.Miner.Profit
             }
         }
         $DataJSON = ConvertTo-Json @($Data)
@@ -221,42 +222,42 @@ Function Start-Mining {
     $Global:powershell = [powershell]::Create()
     $powershell.Runspace = $CycleRunspace
     $powershell.AddScript( {
-        Start-Transcript ".\logs\CoreCyle.log" -Append -Force
-        $ProgressPreference = "SilentlyContinue"
-        . .\Include.ps1; RegisterLoaded(".\Include.ps1")
-        Update-Monitoring
-        While ($True) {
-            if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1; RegisterLoaded(".\Include.ps1")}
-            if (!(IsLoaded(".\Core.ps1"))) {. .\Core.ps1; RegisterLoaded(".\Core.ps1")}
-            If($Variables.Paused) {
-                # Run a dummy cycle to keep the UI updating.
+            Start-Transcript ".\logs\CoreCyle.log" -Append -Force
+            $ProgressPreference = "SilentlyContinue"
+            . .\Include.ps1; RegisterLoaded(".\Include.ps1")
+            Update-Monitoring
+            While ($True) {
+                if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1; RegisterLoaded(".\Include.ps1")}
+                if (!(IsLoaded(".\Core.ps1"))) {. .\Core.ps1; RegisterLoaded(".\Core.ps1")}
+                If ($Variables.Paused) {
+                    # Run a dummy cycle to keep the UI updating.
 
-                # Keep updating exchange rate
-                $Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=BTC" -TimeoutSec 15 -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
-                $Config.Currency | Where-Object {$Rates.$_} | ForEach-Object {$Rates | Add-Member $_ ([Double]$Rates.$_) -Force}
-                $Variables | Add-Member -Force @{Rates = $Rates}
+                    # Keep updating exchange rate
+                    $Rates = Invoke-RestMethod "https://api.coinbase.com/v2/exchange-rates?currency=BTC" -TimeoutSec 15 -UseBasicParsing | Select-Object -ExpandProperty data | Select-Object -ExpandProperty rates
+                    $Config.Currency | Where-Object {$Rates.$_} | ForEach-Object {$Rates | Add-Member $_ ([Double]$Rates.$_) -Force}
+                    $Variables | Add-Member -Force @{Rates = $Rates}
 
-                # Update the UI every 30 seconds, and the Last 1/6/24hr and text window every 2 minutes
-                for ($i = 0; $i -lt 4; $i++) {
-                    if ($i -eq 3) {
-                        $Variables | Add-Member -Force @{EndLoop = $True}
-                        Update-Monitoring
+                    # Update the UI every 30 seconds, and the Last 1/6/24hr and text window every 2 minutes
+                    for ($i = 0; $i -lt 4; $i++) {
+                        if ($i -eq 3) {
+                            $Variables | Add-Member -Force @{EndLoop = $True}
+                            Update-Monitoring
+                        }
+                        else {
+                            $Variables | Add-Member -Force @{EndLoop = $False}
+                        }
+
+                        $Variables.StatusText = "Mining paused"
+                        Start-Sleep 30
                     }
-                    else {
-                        $Variables | Add-Member -Force @{EndLoop = $False}
-                    }
-
-                    $Variables.StatusText = "Mining paused"
-                    Start-Sleep 30
+                }
+                else {
+                    NPMCycle
+                    Update-Monitoring
+                    Sleep $Variables.TimeToSleep
                 }
             }
-            else {
-                NPMCycle
-                Update-Monitoring
-                Sleep $Variables.TimeToSleep
-            }
-        }
-    }) | Out-Null
+        }) | Out-Null
     $Variables | add-Member -Force @{CycleRunspaceHandle = $powershell.BeginInvoke()}
 }
 
@@ -615,7 +616,6 @@ function Get-HashRate {
         switch ($API) {
 
             "Dtsm" {
-                 
                 $Request = Invoke_TcpRequest $server $port "empty" 5
                 if ($Request -ne "" -and $request -ne $null) {
                     $Data = $Request | ConvertFrom-Json | Select-Object  -ExpandProperty result 
@@ -623,6 +623,7 @@ function Get-HashRate {
                 }
 
             }
+
             "xgminer" {
                 $Message = @{command = "summary"; parameter = ""} | ConvertTo-Json -Compress
                 $Request = Invoke_TcpRequest $server $port $Message 5
@@ -649,7 +650,6 @@ function Get-HashRate {
 
             }
 
-
             "palgin" {
                 $Request = Invoke_TcpRequest $server $port  "summary" 5
                 $Data = $Request -split ";"
@@ -657,11 +657,11 @@ function Get-HashRate {
             }
                 
             "ccminer" {
-                
                 $Request = Invoke_TcpRequest $server $port  "summary" 5
                 $Data = $Request -split ";" | ConvertFrom-StringData
                 $HashRate = if ([Double]$Data.KHS -ne 0 -or [Double]$Data.ACC -ne 0) {[Double]$Data.KHS * $Multiplier}
             }
+
             "excavator" {
                 $Message = @{id = 1; method = "algorithm.list"; params = @()} | ConvertTo-Json -Compress
                 $Request = Invoke_TcpRequest $server $port $message 5
@@ -671,25 +671,32 @@ function Get-HashRate {
                     $HashRate = [Double](($Data.workers.speed) | Measure-Object -Sum).Sum
                 }
             }
+
             "ewbf" {
                 $Message = @{id = 1; method = "getstat"} | ConvertTo-Json -Compress
                 $Request = Invoke_TcpRequest $server $port $message 5
                 $Data = $Request | ConvertFrom-Json
                 $HashRate = [Double](($Data.result.speed_sps) | Measure-Object -Sum).Sum
             }
-            "claymore" {
 
+            "gminer" {
+                $Message = @{id = 1; method = "getstat"} | ConvertTo-Json -Compress
+                $Request = Invoke_httpRequest $Server $Port "/stat" 5
+                $Data = $Request | ConvertFrom-Json
+                $HashRate = [Double]($Data.devices.speed | Measure-Object -Sum).Sum
+            }
+
+            "claymore" {
                 $Request = Invoke_httpRequest $Server $Port "" 5
                 if ($Request -ne "" -and $request -ne $null) {
                     $Data = $Request.Content.Substring($Request.Content.IndexOf("{"), $Request.Content.LastIndexOf("}") - $Request.Content.IndexOf("{") + 1) | ConvertFrom-Json
                     $HashRate = [double]$Data.result[2].Split(";")[0] * $Multiplier
                     $HashRate_Dual = [double]$Data.result[4].Split(";")[0] * $Multiplier
                 }
-
             }
-            "ethminer" {
 
-                $Parameters = @{id = 1; jsonrpc = "2.0"; method = "miner_getstat1"} | ConvertTo-Json  -Compress
+            "ethminer" {
+                $Parameters = @{id = 1; jsonrpc = "2.0"; method = "miner_getstat1"} | ConvertTo-Json -Compress
                 $Request = Invoke_tcpRequest $Server $Port $Parameters 5
                 if ($Request -ne "" -and $request -ne $null) {
                     $Data = $Request | ConvertFrom-Json
@@ -698,7 +705,6 @@ function Get-HashRate {
             }
 
             "ClaymoreV2" {
-
                 $Request = Invoke_httpRequest $Server $Port "" 5
                 if ($Request -ne "" -and $request -ne $null) {
                     $Data = $Request.Content.Substring($Request.Content.IndexOf("{"), $Request.Content.LastIndexOf("}") - $Request.Content.IndexOf("{") + 1) | ConvertFrom-Json
@@ -723,6 +729,14 @@ function Get-HashRate {
                     if ($HashRate -eq "") {$HashRate = $Data[3]}
                 }
             }
+
+            "miniZ" {
+                $Message = '{"id":"0", "method":"getstat"}'
+                $Request = Invoke_TcpRequest $server $port $message 5
+                $Data = $Request | ConvertFrom-Json
+                $HashRate = [Double](($Data.result.speed_sps) | Measure-Object -Sum).Sum
+            }
+
             "wrapper" {
                 $HashRate = ""
                 $wrpath = ".\Wrapper_$Id.txt"
@@ -750,7 +764,6 @@ function Get-HashRate {
                     $HashRate = [Double]$Data.hashrate.total[0]
                 }
             }
-
 
             "bminer" { 
                 $Request = Invoke_httpRequest $Server $Port "/api/status" 5
@@ -961,12 +974,38 @@ function Start-SubProcess {
         $lpStartupInfo.dwFlags = [STARTF]::STARTF_USESHOWWINDOW
         $lpProcessInformation = New-Object PROCESS_INFORMATION
 
-        [Kernel32]::CreateProcess($lpApplicationName, $lpCommandLine, [ref] $lpProcessAttributes, [ref] $lpThreadAttributes, $bInheritHandles, $dwCreationFlags, $lpEnvironment, $lpCurrentDirectory, [ref] $lpStartupInfo, [ref] $lpProcessInformation)
+        $CreateProcessExitCode = [Kernel32]::CreateProcess($lpApplicationName, $lpCommandLine, [ref] $lpProcessAttributes, [ref] $lpThreadAttributes, $bInheritHandles, $dwCreationFlags, $lpEnvironment, $lpCurrentDirectory, [ref] $lpStartupInfo, [ref] $lpProcessInformation)
         $x = [System.Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        Write-Host "CreateProcessExitCode: $CreateProcessExitCode"
         Write-Host "Last error $x"
-        $Process = Get-Process -Id $lpProcessInformation.dwProcessID
+        Write-Host $lpCommandLine
+        Write-Host "lpProcessInformation.dwProcessID: $($lpProcessInformation.dwProcessID)"
+		
+        If ($CreateProcessExitCode) {
+            Write-Host "lpProcessInformation.dwProcessID - WHEN TRUE: $($lpProcessInformation.dwProcessID)"
 
-        if ($Process -eq $null) {
+            $Process = Get-Process -Id $lpProcessInformation.dwProcessID
+
+            # Dirty workaround
+            # Need to investigate. lpProcessInformation sometimes comes null even if process started
+            # So getting process with the same FilePath if so
+            $Tries = 0
+            While ($Process -eq $null -and $Tries -le 5) {
+                Write-Host "Can't get process - $Tries"
+                $Tries++
+                Sleep 1
+                $Process = (Get-Process | ? {$_.Path -eq $FilePath})[0]
+                Write-Host "Process= $($Process.Handle)"
+            }
+
+            if ($Process -eq $null) {
+                Write-Host "Case 2 - Failed Get-Process"
+                [PSCustomObject]@{ProcessId = $null}
+                return
+            }
+        }
+        else {
+            Write-Host "Case 1 - Failed CreateProcess"
             [PSCustomObject]@{ProcessId = $null}
             return
         }

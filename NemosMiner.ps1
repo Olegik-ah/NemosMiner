@@ -16,8 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           NemosMiner.ps1
-version:        3.5.2
-version date:   29 October 2018
+version:        3.6.6
+version date:   16 January 2019
 #>
 
 param(
@@ -26,17 +26,17 @@ param(
     [Parameter(Mandatory = $false)]
     [String]$UserName = "nemo", 
     [Parameter(Mandatory = $false)]
-    [String]$WorkerName = "ID=NemosMiner-v3.5.2", 
+    [String]$WorkerName = "ID=NemosMiner-v3.6.6", 
     [Parameter(Mandatory = $false)]
     [Int]$API_ID = 0, 
     [Parameter(Mandatory = $false)]
     [String]$API_Key = "", 
     [Parameter(Mandatory = $false)]
-    [Int]$Interval = 180, #seconds before between cycles after the first has passed 
+    [Int]$Interval = 120, #seconds before between cycles after the first has passed 
     [Parameter(Mandatory = $false)]
     [Int]$FirstInterval = 30, #seconds of the first cycle of activated or started first time miner
     [Parameter(Mandatory = $false)]
-    [Int]$StatsInterval = 300, #seconds of current active to gather hashrate if not gathered yet
+    [Int]$StatsInterval = 120, #seconds of current active to gather hashrate if not gathered yet
     [Parameter(Mandatory = $false)]
     [String]$Location = "US", #europe/us/asia
     [Parameter(Mandatory = $false)]
@@ -62,7 +62,7 @@ param(
     [Parameter(Mandatory = $false)]
     [String]$Proxy = "", #i.e http://192.0.0.1:8080 
     [Parameter(Mandatory = $false)]
-    [Int]$Delay = 1, #seconds before opening each miner
+    [Int]$Delay = 3, #seconds before opening each miner
     [Parameter(Mandatory = $false)]
     [Int]$GPUCount = 1, # Number of GPU on the system
     [Parameter(Mandatory = $false)]
@@ -84,17 +84,14 @@ param(
 . .\Core.ps1
 
 @"
-This program comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it
-under certain conditions.
-https://github.com/nemosminer/NemosMiner/blob/master/LICENSE
-
 NemosMiner
-Copyright (c) 2018 Nemo and MrPlus
-This program comes with ABSOLUTELY NO WARRANTY.
+Copyright (c) 2019 Nemo and MrPlus
 This is free software, and you are welcome to redistribute it
 under certain conditions.
 https://github.com/nemosminer/NemosMiner/blob/master/LICENSE
+"@
+Write-Host -F Yellow " Copyright and license notices must be preserved."
+@"
 "@
 
 $Global:Config = [hashtable]::Synchronized(@{})
@@ -201,16 +198,17 @@ Function Form_Load {
 
                     # Set row color
                     $WorkersDGV.Rows | ForEach-Object {
-                        if($_.DataBoundItem.Status -eq "Offline") {
-                            $_.DefaultCellStyle.Backcolor=[System.Drawing.Color]::FromArgb(255,213,142,176)
+                        if ($_.DataBoundItem.Status -eq "Offline") {
+                            $_.DefaultCellStyle.Backcolor = [System.Drawing.Color]::FromArgb(255, 213, 142, 176)
                         }
                         elseif ($_.DataBoundItem.Status -eq "Paused") {
-                            $_.DefaultCellStyle.Backcolor=[System.Drawing.Color]::FromArgb(255,247,252,168)
+                            $_.DefaultCellStyle.Backcolor = [System.Drawing.Color]::FromArgb(255, 247, 252, 168)
                         }
                         elseif ($_.DataBoundItem.Status -eq "Running") {
-                            $_.DefaultCellStyle.Backcolor=[System.Drawing.Color]::FromArgb(255,127,191,144)
-                        } else {
-                            $_.DefaultCellStyle.Backcolor=[System.Drawing.Color]::FromArgb(255,255,255,255)
+                            $_.DefaultCellStyle.Backcolor = [System.Drawing.Color]::FromArgb(255, 127, 191, 144)
+                        }
+                        else {
+                            $_.DefaultCellStyle.Backcolor = [System.Drawing.Color]::FromArgb(255, 255, 255, 255)
                         }
                     }
 
@@ -313,9 +311,9 @@ Function Form_Load {
                         # $Variables.Earnings.Values | select Pool,Wallet,Balance,AvgDailyGrowth,EstimatedPayDate,TrustLevel | ft *
                         $Variables.Earnings.Values | foreach {
                             Write-Host "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" -F DarkGray
-							Write-Host "Pool name           " -NoNewline; Write-Host $_.pool -F Yellow
-							Write-Host "Wallet              " -NoNewline; Write-Host $_.Wallet -F Yellow
-							Write-Host "Balance            " $_.balance ("{0:P0}" -f ($_.balance / $_.PaymentThreshold))
+                            Write-Host "Pool name           " -NoNewline; Write-Host $_.pool -F Yellow
+                            Write-Host "Wallet              " -NoNewline; Write-Host $_.Wallet -F Yellow
+                            Write-Host "Balance            " $_.balance ("{0:P0}" -f ($_.balance / $_.PaymentThreshold))
                             Write-Host "Trust Level        " ("{0:P0}" -f $_.TrustLevel) -NoNewline; Write-Host -F darkgray " Avg based on [" ("{0:dd\ \d\a\y\s\ hh\:mm}" -f ($_.Date - $_.StartTime))"]"
                             Write-Host "Average BTC/H" -NoNewline; Write-Host " BTC = " -F DarkGray -NoNewline; Write-Host ("{0:N8}" -f $_.AvgHourlyGrowth) "| mBTC =" ("{0:N3}" -f ($_.AvgHourlyGrowth * 1000))
                             Write-Host "Average BTC/D" -NoNewline; Write-Host " BTC =" ("{0:N8}" -f ($_.BTCD)) "| mBTC =" ("{0:N3}" -f ($_.BTCD * 1000)) -F Yellow
@@ -384,7 +382,7 @@ Function Form_Load {
                 Sleep -Milliseconds 1
             }
             $TimerUI.Start()
-    })
+        })
     $TimerUI.Start()
 }
 
@@ -445,10 +443,17 @@ $MainForm.add_Shown( {
         If ($Version -ne $null) {$Version | ConvertTo-json | Out-File ".\Config\version.json"}
         If ($Version.Product -eq $Variables.CurrentProduct -and [Version]$version.Version -gt $Variables.CurrentVersion -and $Version.Update) {
             Update-Status("Version $($version.Version) available. (You are running $($Variables.CurrentVersion))")
-            $LabelNotifications.ForeColor = "Green"
-            $LabelNotifications.Lines += "Version $([Version]$version.Version) available"
-            $LabelNotifications.Lines += $version.Message
-            If ($Config.Autoupdate -and ! $Config.ManualConfig) {Autoupdate}
+            If ([version](GetNVIDIADriverVersion) -ge [Version]$Version.MinNVIDIADriverVersion) {
+                $LabelNotifications.ForeColor = "Green"
+                $LabelNotifications.Lines += "Version $([Version]$version.Version) available"
+                $LabelNotifications.Lines += $version.Message
+                If ($Config.Autoupdate -and ! $Config.ManualConfig) {Autoupdate}
+            }
+            else {
+                Update-Status("Version $($version.Version) available. Please update NVIDIA driver. Will not AutoUpdate")
+                $LabelNotifications.ForeColor = "Red"
+                $LabelNotifications.Lines += "Driver update required. Version $([Version]$version.Version) available"
+            }
         }
     
         # TimerCheckVersion
@@ -463,10 +468,18 @@ $MainForm.add_Shown( {
                 catch {$Version = Get-content ".\Config\version.json" | Convertfrom-json}
                 If ($Version -ne $null) {$Version | ConvertTo-json | Out-File ".\Config\version.json"}
                 If ($Version.Product -eq $Variables.CurrentProduct -and [Version]$version.Version -gt $Variables.CurrentVersion -and $Version.Update) {
-                    Update-Status("Version $($version.Version) available. (You are running $Variables.CurrentVersion)")
-                    $LabelNotifications.ForeColor = "Green"
-                    $LabelNotifications.Lines += "Version $([Version]$version.Version) available"
-                    If ($Config.Autoupdate -and ! $Config.ManualConfig) {Autoupdate}
+                    If ([version](GetNVIDIADriverVersion) -ge [Version]$Version.MinNVIDIADriverVersion) {
+                        $LabelNotifications.ForeColor = "Green"
+                        $LabelNotifications.Lines += "Version $([Version]$version.Version) available"
+                        $LabelNotifications.Lines += $version.Message
+                        If ($Config.Autoupdate -and ! $Config.ManualConfig) {Autoupdate}
+                    }
+                    else {
+                        Update-Status("Version $($version.Version) available. Please update NVIDIA driver. Will not AutoUpdate")
+                        $LabelNotifications.ForeColor = "Red"
+                        $LabelNotifications.Lines += "Driver update required. Version $([Version]$version.Version) available"
+                    }
+                    
                 }
             })
         # Detects GPU count if 0 or Null in config
@@ -660,11 +673,11 @@ $LabelGitHub.add_Click( {[system.Diagnostics.Process]::start("https://github.com
 $MainFormControls += $LabelGitHub
 
 $LabelCopyright = New-Object System.Windows.Forms.LinkLabel
-$LabelCopyright.Location = New-Object System.Drawing.Size(415, 80)
+$LabelCopyright.Location = New-Object System.Drawing.Size(415, 72)
 $LabelCopyright.Size = New-Object System.Drawing.Size(200, 20)
 $LabelCopyright.LinkColor = "BLUE"
 $LabelCopyright.ActiveLinkColor = "RED"
-$LabelCopyright.Text = "Copyright (c) 2018 Nemo and MrPlus"
+$LabelCopyright.Text = "Copyright (c) 2019 Nemo and MrPlus"
 $LabelCopyright.add_Click( {[system.Diagnostics.Process]::start("https://github.com/nemosminer/NemosMiner/blob/master/LICENSE")})
 $MainFormControls += $LabelCopyright
 
@@ -1152,20 +1165,21 @@ $CheckBoxAutostart.Font = 'Microsoft Sans Serif,10'
 $CheckBoxAutostart.Checked = $Config.Autostart
 $ConfigPageControls += $CheckBoxAutostart
 
-$CheckBoxAutoStart.Add_Click({
-    # Disable CheckBoxStartPaused and mine when idle when Auto Start is unchecked
-    if($CheckBoxAutoStart.Checked) {
-        $CheckBoxStartPaused.Enabled = $True
-        $CheckBoxMineWhenIdle.Enabled = $True
-        $TBIdleSec.Enabled = $True
-    } else {
-        $CheckBoxStartPaused.Checked = $False
-        $CheckBoxStartPaused.Enabled = $False
-        $CheckBoxMineWhenIdle.Checked = $False
-        $CheckBoxMineWhenIdle.Enabled = $False
-        $TBIdleSec.Enabled = $False
-    }
-})
+$CheckBoxAutoStart.Add_Click( {
+        # Disable CheckBoxStartPaused and mine when idle when Auto Start is unchecked
+        if ($CheckBoxAutoStart.Checked) {
+            $CheckBoxStartPaused.Enabled = $True
+            $CheckBoxMineWhenIdle.Enabled = $True
+            $TBIdleSec.Enabled = $True
+        }
+        else {
+            $CheckBoxStartPaused.Checked = $False
+            $CheckBoxStartPaused.Enabled = $False
+            $CheckBoxMineWhenIdle.Checked = $False
+            $CheckBoxMineWhenIdle.Enabled = $False
+            $TBIdleSec.Enabled = $False
+        }
+    })
 
 $CheckBoxStartPaused = New-Object system.Windows.Forms.CheckBox
 $CheckBoxStartPaused.Tag = "StartPaused"
@@ -1350,7 +1364,7 @@ $GroupMonitoringSettings = New-Object system.Windows.Forms.GroupBox
 $GroupMonitoringSettings.Height = 60
 $GroupMonitoringSettings.Width = 710
 $GroupMonitoringSettings.Text = "Monitoring Settings"
-$GroupMonitoringSettings.Location = New-Object System.Drawing.Point(1,272)
+$GroupMonitoringSettings.Location = New-Object System.Drawing.Point(1, 272)
 $MonitoringPageControls += $GroupMonitoringSettings
 
 $LabelMonitoringServer = New-Object system.Windows.Forms.Label
@@ -1400,7 +1414,7 @@ $LabelMonitoringUser.text = "User ID"
 $LabelMonitoringUser.AutoSize = $false
 $LabelMonitoringUser.width = 60
 $LabelMonitoringUser.height = 20
-$LabelMonitoringUser.location = New-Object System.Drawing.Point(2,37)
+$LabelMonitoringUser.location = New-Object System.Drawing.Point(2, 37)
 $LabelMonitoringUser.Font = 'Microsoft Sans Serif,10'
 $MonitoringSettingsControls += $LabelMonitoringUser
 
@@ -1419,14 +1433,14 @@ $ButtonGenerateMonitoringUser = New-Object system.Windows.Forms.Button
 $ButtonGenerateMonitoringUser.text = "Generate New User ID"
 $ButtonGenerateMonitoringUser.width = 160
 $ButtonGenerateMonitoringUser.height = 20
-$ButtonGenerateMonitoringUser.location = New-Object System.Drawing.Point(324,37)
+$ButtonGenerateMonitoringUser.location = New-Object System.Drawing.Point(324, 37)
 $ButtonGenerateMonitoringUser.Font = 'Microsoft Sans Serif,10'
 $ButtonGenerateMonitoringUser.Enabled = ($TBMonitoringUser.text -eq "")
 $MonitoringSettingsControls += $ButtonGenerateMonitoringUser
 
-$ButtonGenerateMonitoringUser.Add_Click({$TBMonitoringUser.text = [GUID]::NewGuid()})
+$ButtonGenerateMonitoringUser.Add_Click( {$TBMonitoringUser.text = [GUID]::NewGuid()})
 # Only enable the generate button when user is blank.
-$TBMonitoringUser.Add_TextChanged({ $ButtonGenerateMonitoringUser.Enabled = ($TBMonitoringUser.text -eq "") })
+$TBMonitoringUser.Add_TextChanged( { $ButtonGenerateMonitoringUser.Enabled = ($TBMonitoringUser.text -eq "") })
 
 
 $ButtonMonitoringWriteConfig = New-Object system.Windows.Forms.Button
@@ -1449,7 +1463,7 @@ $TimerUI = New-Object System.Windows.Forms.Timer
 
 $TimerUI.Stop()
 $ButtonPause.Add_Click( {
-        If(!$Variables.Paused) {
+        If (!$Variables.Paused) {
             Update-Status("Stopping miners")
             $Variables.Paused = $True
 
@@ -1506,7 +1520,8 @@ $ButtonStart.Add_Click( {
                 # Disable the pause button - pausing controlled by idle timer
                 $Variables.Paused = $True
                 $ButtonPause.Visible = $False
-            } else {
+            }
+            else {
                 $ButtonPause.Visible = $True
             }
 
@@ -1517,14 +1532,15 @@ $ButtonStart.Add_Click( {
     })
 
 $CheckBoxConsole.Add_Click( {
-        If($CheckBoxConsole.Checked) {
+        If ($CheckBoxConsole.Checked) {
             $null = $ShowWindow::ShowWindowAsync($ConsoleHandle, 0)
             Update-Status("Console window hidden")
-        } else {
+        }
+        else {
             $null = $ShowWindow::ShowWindowAsync($ConsoleHandle, 8)
             Update-Status("Console window shown")
         }
-})
+    })
 
 $ShowWindow = Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);' -Name Win32ShowWindowAsync -Namespace Win32Functions -PassThru
 $ParentPID = (Get-CimInstance -Class Win32_Process -Filter "ProcessID = $pid").ParentProcessId
