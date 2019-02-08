@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           Core.ps1
-version:        3.6.6
-version date:   16 January 2019
+version:        3.7.1
+version date:   5 February 2019
 #>
 
 Function InitApplication {
@@ -122,6 +122,7 @@ Function Start-ChildJobs {
 }
 
 Function NPMCycle {
+$CycleTime = Measure-Command -Expression {
     if (!(IsLoaded(".\Include.ps1"))) {. .\Include.ps1; RegisterLoaded(".\Include.ps1"); "LoadedInclude" | out-host}
 
     $Variables | Add-Member -Force @{EndLoop = $False}
@@ -210,7 +211,9 @@ Function NPMCycle {
     } While ($AllPools.Count -eq 0)
     $Variables.StatusText = "Computing pool stats.."
     # Use location as preference and not the only one
-    $AllPools = ($AllPools | ? {$_.location -eq $Config.Location}) + ($AllPools | ? {$_.name -notin ($AllPools | ? {$_.location -eq $Config.Location}).Name})
+    $LocPools = $AllPools | ?{$_.location -eq $Config.Location}
+    $AllPools = $LocPools + ($AllPools | ? {$_.name -notin $LocPools.name})
+    rv LocPools
     # Filter Algo based on Per Pool Config
     $PoolsConf = $Config.PoolsConfig
     $AllPools = $AllPools | Where {$_.Name -notin ($PoolsConf | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name) -or ($_.Name -in ($PoolsConf | Get-Member -MemberType NoteProperty | Select -ExpandProperty Name) -and ((!($PoolsConf.($_.Name).Algorithm | ? {$_ -like "+*"}) -or ("+$($_.Algorithm)" -in $PoolsConf.($_.Name).Algorithm)) -and ("-$($_.Algorithm)" -notin $PoolsConf.($_.Name).Algorithm)))}
@@ -388,6 +391,13 @@ Function NPMCycle {
     $BestMiners_Combos_Comparison += $Miners_Device_Combos | ForEach {$Miner_Device_Combo = $_.Combination; [PSCustomObject]@{Combination = $Miner_Device_Combo | ForEach {$Miner_Device_Count = $_.Device.Count; [Regex]$Miner_Device_Regex = '^(' + (($_.Device | ForEach {[Regex]::Escape($_)}) -join '|') + ')$'; $BestDeviceMiners_Comparison | Where {([Array]$_.Device -notmatch $Miner_Device_Regex).Count -eq 0 -and ([Array]$_.Device -match $Miner_Device_Regex).Count -eq $Miner_Device_Count}}}}
     $BestMiners_Combo = $BestMiners_Combos | Sort -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count}, {($_.Combination | Measure Profit_Bias -Sum).Sum}, {($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
     $BestMiners_Combo_Comparison = $BestMiners_Combos_Comparison | Sort -Descending {($_.Combination | Where Profit -EQ $null | Measure).Count}, {($_.Combination | Measure Profit_Comparison -Sum).Sum}, {($_.Combination | Where Profit -NE 0 | Measure).Count} | Select -First 1 | Select -ExpandProperty Combination
+    
+    # No CPU mining if GPU miner prevents it
+    If ($BestMiners_Combo.PreventCPUMining -contains $true) {
+        $BestMiners_Combo = $BestMiners_Combo | ? {$_.type -ne "CPU"}
+        $Variables.StatusText = "Miner prevents CPU mining"
+    }
+    
     #Add the most profitable miners to the active list
     $BestMiners_Combo | ForEach {
         if (($Variables.ActiveMinerPrograms | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments).Count -eq 0) {
@@ -402,7 +412,8 @@ Function NPMCycle {
                 Port              = $_.Port
                 Algorithms        = $_.HashRates.PSObject.Properties.Name
                 New               = $false
-                Active            = [TimeSpan]0
+                Active = [TimeSpan]0
+                TotalActive = [TimeSpan]0
                 Activated         = 0
                 Status            = "Idle"
                 HashRate          = 0
@@ -426,7 +437,6 @@ Function NPMCycle {
                 Get-Process | Where-Object {$_.Path -eq $KillPath} | Stop-Process -Force
             }
             elseif ($_.Process.HasExited -eq $false) {
-                $_.Active += (Get-Date) - $_.Process.StartTime
                 $_.Process.CloseMainWindow() | Out-Null
                 Sleep 1
                 # simply "Kill with power"
@@ -465,7 +475,7 @@ Function NPMCycle {
                     }
                     else {
                         If (Test-Path $DefaultPrerunName) {
-                            $Variables.StatusText = "Launching Prerun: $DefaultPrerunName"
+                            $Variables.StatusText = "Launching Prerun: $PrerunName"
                             Start-Process $DefaultPrerunName -WorkingDirectory ".\Prerun" -WindowStyle hidden
                             Sleep 2
                         }
@@ -477,7 +487,7 @@ Function NPMCycle {
                 $Variables.DecayStart = Get-Date
                 $_.New = $true
                 $_.Activated++
-                if ($_.Process -ne $null) {$_.Active += $_.Process.ExitTime - $_.Process.StartTime}
+                # if ($_.Process -ne $null) {$_.Active += $_.Process.ExitTime - $_.Process.StartTime}
                 if ($_.Wrap) {$_.Process = Start-Process -FilePath "PowerShell" -ArgumentList "-WindowStyle Minimized -executionpolicy bypass -command . '$(Convert-Path ".\Wrapper.ps1")' -ControllerProcessID $PID -Id '$($_.Port)' -FilePath '$($_.Path)' -ArgumentList '$($_.Arguments)' -WorkingDirectory '$(Split-Path $_.Path)'" -PassThru}
                 else {$_.Process = Start-SubProcess -FilePath $_.Path -ArgumentList $_.Arguments -WorkingDirectory (Split-Path $_.Path)}
                 if ($_.Process -eq $null) {$_.Status = "Failed"}
@@ -487,6 +497,10 @@ Function NPMCycle {
                     #Newely started miner should looks better than other in the first run too
                     $Variables.Miners | Where Path -EQ $_.Path | Where Arguments -EQ $_.Arguments | ForEach {$_.Profit_Bias = $_.Profit * (1 + $Config.ActiveMinerGainPct / 100)}
                 }
+            } else {
+                $now = Get-Date
+                $_.TotalActive = $_.TotalActive + ( $Now - $_.Process.StartTime ) - $_.Active
+                $_.Active = $Now - $_.Process.StartTime
             }
             $CurrentMinerHashrate_Gathered = $_.Hashrate_Gathered
         }
@@ -582,6 +596,9 @@ Function NPMCycle {
 
     # Mostly used for debug. Will execute code found in .\EndLoopCode.ps1 if exists.
     if (Test-Path ".\EndLoopCode.ps1") {Invoke-Expression (Get-Content ".\EndLoopCode.ps1" -Raw)}
+}
+    #$Variables.StatusText = "Cycle Time (seconds): $($CycleTime.TotalSeconds)"
+    "Cycle Time (seconds): $($CycleTime.TotalSeconds)" | out-host
     $Variables | Add-Member -Force @{EndLoop = $True}
     $Variables.StatusText = "Sleeping $($Variables.TimeToSleep)"
     # Sleep $Variables.TimeToSleep

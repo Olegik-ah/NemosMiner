@@ -1,6 +1,6 @@
 # NemosMiner
 
-Updated 20 January 2019
+Updated 8 Febuary 2019
 
 [![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
 [![GitHub license](https://img.shields.io/github/license/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/blob/master/LICENSE)
@@ -16,7 +16,10 @@ by Nemo/Minerx117
 
 with Help From MrPlusGH and grantemsley 
  
+[![Discord tag](https://img.shields.io/discord/522832112311599124.svg?label=Discord&style=plastic)](https://discord.gg/2BCqPxe) [Click to Join Discord](https://discord.gg/2BCqPxe)
+
 *****
+**Have questions? Need help?** We're on Discord: https://discord.gg/2BCqPxe
 
 NemosMiner Monitors mining pools in real-time in order to find the most profitable Algo
 
@@ -212,9 +215,9 @@ https://www.microsoft.com/en-us/download/details.aspx?id=48145
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-recommended/optimal Nvidia driver 417.35 / http://us.download.nvidia.com/Windows/417.35/417.35-desktop-win10-64bit-international-whql-rp.exe
+recommended/optimal Nvidia driver 417.71 / http://us.download.nvidia.com/Windows/417.71/417.71-desktop-win10-64bit-international-whql.exe
 
-Tested with 6x1070 6x1070ti 6x1080ti 6x2080 (users have reported up to 12cards working have not tested myself)
+Made for & Tested with 6x1070 6x1070ti 6x1080 6x1080ti 6x1660ti 6x2060 6x2070 6x2080 6x2080ti(users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
 
 *****

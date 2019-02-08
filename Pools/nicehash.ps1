@@ -9,36 +9,34 @@ if (-not $Request) {return}
 
 $Name = (Get-Item $script:MyInvocation.MyCommand.Path).BaseName
 
+# Placed here for Perf (Disk reads)
+$ConfName = if ($Config.PoolsConfig.$Name -ne $Null) {$Name}else {"default"}
+$PoolConf = $Config.PoolsConfig.$ConfName
 
 
-$Locations = "eu", "usa", "hk", "jp", "in", "br"
-$Locations | ForEach-Object {
-    $NiceHash_Location = $_
+$Request.result.simplemultialgo | ForEach-Object {
+    $Algo = $_.Name
+    $NiceHash_Port = $_.port
+    $NiceHash_Algorithm = Get-Algorithm $_.name
+    $NiceHash_Coin = ""
+
+    $Divisor = 1000000000
+
+    $Stat = Set-Stat -Name "$($Name)_$($NiceHash_Algorithm)_Profit" -Value ([Double]$_.paying / $Divisor)
+
+    $Locations = "eu", "usa", "hk", "jp", "in", "br"
+    $Locations | ForEach-Object {
+        $NiceHash_Location = $_
         
-    switch ($NiceHash_Location) {
-        "eu" {$Location = "eu"} #Europe(Amsterdam)
-        "us" {$Location = "us"} #USA(San Jose)
-        "jp" {$Location = "jp"} #Japan(Tokyo)
-        "hk" {$Location = "hk"} #China(Hong Kong)
-        "in" {$Location = "in"} #India(Chennai)
-        "br" {$Location = "br"} #Brazil(Sao Paulo)
-
-        default {$Location = "us"}
-    }
-
-    # Placed here for Perf (Disk reads)
-    $ConfName = if ($Config.PoolsConfig.$Name -ne $Null) {$Name}else {"default"}
-    $PoolConf = $Config.PoolsConfig.$ConfName
-
-    $Request.result.simplemultialgo | ForEach-Object {
-        $NiceHash_Host = "$($_.Name).$NiceHash_Location.nicehash.com"
-        $NiceHash_Port = $_.port
-        $NiceHash_Algorithm = Get-Algorithm $_.name
-        $NiceHash_Coin = ""
-
-        $Divisor = 1000000000
-
-        $Stat = Set-Stat -Name "$($Name)_$($NiceHash_Algorithm)_Profit" -Value ([Double]$_.paying / $Divisor)
+        switch ($NiceHash_Location) {
+            "eu" {$Location = "EU"}
+            "usa" {$Location = "US"}
+            "jp" {$Location = "JP"}
+            "hk" {$Location = "HK"}
+            "in" {$Location = "IN"}
+            "br" {$Location = "BR"}
+        }
+        $NiceHash_Host = "$($Algo).$NiceHash_Location.nicehash.com"
 
         if ($PoolConf.Wallet) {
             [PSCustomObject]@{

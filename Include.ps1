@@ -14,8 +14,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           include.ps1
-version:        3.6.6
-version date:   16 January 2019
+version:        3.7.1
+version date:   5 February 2019
 #>
 
 # New-Item -Path function: -Name ((Get-FileHash $MyInvocation.MyCommand.path).Hash) -Value {$true} -EA SilentlyContinue | out-null
@@ -662,6 +662,12 @@ function Get-HashRate {
                 $HashRate = if ([Double]$Data.KHS -ne 0 -or [Double]$Data.ACC -ne 0) {[Double]$Data.KHS * $Multiplier}
             }
 
+            "zjazz" {
+                $Request = Invoke_TcpRequest $server $port  "summary" 10
+                $Data = $Request -split ";" | ConvertFrom-StringData -ErrorAction Stop
+                $HashRate = [Double]$Data.KHS * 2000000 #Temp fix for nlpool wrong hashrate
+            }
+
             "excavator" {
                 $Message = @{id = 1; method = "algorithm.list"; params = @()} | ConvertTo-Json -Compress
                 $Request = Invoke_TcpRequest $server $port $message 5
@@ -711,6 +717,16 @@ function Get-HashRate {
                     $HashRate = [double]$Data.result[2].Split(";")[0] 
                 }
             }
+	    
+	         "TTminer" {
+
+                $Parameters = @{id = 1; jsonrpc = "2.0"; method = "miner_getstat1"} | ConvertTo-Json  -Compress
+                $Request = Invoke_tcpRequest $Server $Port $Parameters 5
+                if ($Request -ne "" -and $request -ne $null) {
+                    $Data = $Request | ConvertFrom-Json
+                    $HashRate = [int](($Data.result[2] -split ';')[0]) #* 1000
+                }
+            }
 
             "prospector" {
                 $Request = Invoke_httpRequest $Server $Port "/api/v0/hashrates" 5
@@ -739,7 +755,7 @@ function Get-HashRate {
 
             "wrapper" {
                 $HashRate = ""
-                $wrpath = ".\Wrapper_$Id.txt"
+                $wrpath = ".\Logs\energi.txt"
                 $HashRate = if (test-path -path $wrpath ) {
                     Get-Content  $wrpath
                     $HashRate = ($HashRate -split ',')[0]
