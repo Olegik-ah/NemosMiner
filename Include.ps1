@@ -14,8 +14,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <#
 Product:        NemosMiner
 File:           include.ps1
-version:        3.7.1
-version date:   5 February 2019
+version:        3.7.5
+version date:   28 February 2019
 #>
 
 # New-Item -Path function: -Name ((Get-FileHash $MyInvocation.MyCommand.path).Hash) -Value {$true} -EA SilentlyContinue | out-null
@@ -486,12 +486,17 @@ function Get-ChildItemContent {
 
     $ChildItems = Get-ChildItem -Recurse -Path $Path -Include $Include | ForEach-Object {
         $Name = $_.BaseName
+        $FileName = $_.Name
         $Content = @()
         if ($_.Extension -eq ".ps1") {
             $Content = &$_.FullName
         }
         else {
-            $Content = $_ | Get-Content | ConvertFrom-Json
+            Try {
+                $Content = $_ | Get-Content | ConvertFrom-Json
+            } Catch {
+                Write-Host "Unable to load $Path\$FileName"
+            }
         }
         $Content | ForEach-Object {
             [PSCustomObject]@{Name = $Name; Content = $_}
