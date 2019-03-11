@@ -1,10 +1,13 @@
 # NemosMiner
 
-Updated 01 March 2019
+Updated 12 March 2019
 
-[![Version tag](https://img.shields.io/github/release/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/releases/latest) [![Version date tag](https://img.shields.io/github/release-date/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/Nemosminer/releases/latest) [![Issues tag](https://img.shields.io/github/issues-raw/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/issues)
-[![GitHub license](https://img.shields.io/github/license/nemosminer/NemosMiner.svg)](https://github.com/nemosminer/NemosMiner/blob/master/LICENSE)
-![Releases](https://img.shields.io/github/downloads/nemosminer/NemosMiner/total.svg)
+[![Github All Releases](https://img.shields.io/github/downloads/nemosminer/Nemosminer/total.svg)](https://github.com/nemosminer/Nemosminer/releases)
+[![GitHub release](https://img.shields.io/github/release/nemosminer/Nemosminer/all.svg)](https://github.com/nemosminer/Nemosminer/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date-pre/nemosminer/Nemosminer.svg)](https://github.com/nemosminer/Nemosminer/releases)
+[![GitHub license](https://img.shields.io/github/license/nemosminer/Nemosminer.svg)](https://github.com/nemosminer/Nemosminer/blob/master/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/nemosminer/Nemosminer.svg)](https://github.com/nemosminer/Nemosminer/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/nemosminer/Nemosminer.svg)](https://github.com/nemosminer/Nemosminer/network)
 
 Copyright (c) 2019 Nemo and MrPlus
 
@@ -211,15 +214,15 @@ CCminer may need 'Visual C++ 2013' if you don't already have it:
 
 running multiple cards its recommended to increase Virtual Memory 64gb is optimal
 
-recommended/optimal Windows Nvidia driver 418.91 
+recommended/optimal Windows Nvidia driver 419.17 
 
-[Windows10](http://us.download.nvidia.com/Windows/418.91/418.91-desktop-win10-64bit-international-whql.exe)
+[Windows10](http://us.download.nvidia.com/Windows/419.17/419.17-desktop-win10-64bit-international-whql.exe)
 
-[Windows7,8](http://us.download.nvidia.com/Windows/418.91/418.91-desktop-win8-win7-64bit-international-whql.exe)
+[Windows7](http://us.download.nvidia.com/Windows/419.17/419.17-desktop-win7-64bit-international-whql.exe)
 
-recommended/optimal Linux Nvidia driver 410.93
+recommended/optimal Linux Nvidia driver 418.43
 
-[Linux/Hiveos](http://us.download.nvidia.com/XFree86/Linux-x86_64/410.93/NVIDIA-Linux-x86_64-410.93.run)
+[Linux/Hiveos](http://us.download.nvidia.com/XFree86/Linux-x86_64/418.43/NVIDIA-Linux-x86_64-418.43.run)
 
 Made for & Tested with 6x1070 6x1070ti 6x1080 6x1080ti 6x1660ti 6x2060 6x2070 6x2080 6x2080ti(users have reported up to 12cards working have not tested myself)
 Some miners do not support more that 9 cards
